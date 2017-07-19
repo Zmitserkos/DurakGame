@@ -1,0 +1,99 @@
+<div class="table">
+  <div class="horizintal-panel">
+    <div class="top-player horizintal-panel" *ngIf="table.topVisible">
+      <card-cmp
+        *ngFor="let card of table.players[table.topIndex].cards"
+        [card]="card" [isVisible]="true"
+        [margin]="table.players[table.topIndex].cardsMargin">
+      </card-cmp>
+    </div>
+  </div>
+  <div class="middle-container">
+    <div class="vertical-panel">
+      <div class="left-player vertical-panel" *ngIf="table.leftVisible">
+        <card-cmp
+          *ngFor="let card of table.players[table.leftIndex].cards"
+          [card]="card" [isVisible]="true" [rotated]="true"
+          [margin]="table.players[table.leftIndex].cardsMargin">
+        </card-cmp>
+      </div>
+    </div>
+    <div class="game-container">
+      <div class="top-panel">
+        <div class="names-container">
+          <span class="player-name" [ngClass]="{'active-player': table.players[table.currPlayerIndex].isActive}">{{table.players[table.currPlayerIndex].name}}</span>
+          <span class="player-name" [ngClass]="{'active-player': table.players[table.rightIndex].isActive}" *ngIf="table.rightVisible">{{table.players[table.rightIndex].name}}</span>
+          <span class="player-name" [ngClass]="{'active-player': table.players[table.topIndex].isActive}" *ngIf="table.topVisible">{{table.players[table.topIndex].name}}</span>
+          <span class="player-name" [ngClass]="{'active-player': table.players[table.leftIndex].isActive}" *ngIf="table.leftVisible">{{table.players[table.leftIndex].name}}</span>
+        </div>
+      </div>
+      <div class="battle-area">
+        <span *ngIf="table.looserIndex != null" class="white-text">
+          <h1 class="game-over-message game-over">GAME OVER</h1>
+          <h2 class="game-over-message" *ngIf="table.looserIndex !== -1">The looser is {{table.players[table.looserIndex].name}}</h2>
+          <h2 class="game-over-message" *ngIf="table.looserIndex === -1">DRAW</h2>
+        </span>
+
+        <div class="light bottom-light" [ngClass]="{'active-light': table.players[table.currPlayerIndex].isActive,
+          'looser-light': table.players[table.currPlayerIndex].isLooser}"></div>
+        <div class="light top-light" [ngClass]="{'active-light': table.players[table.topIndex].isActive,
+          'looser-light': table.players[table.topIndex].isLooser}" *ngIf="table.topVisible"></div>
+        <div class="light left-light" [ngClass]="{'active-light': table.players[table.leftIndex].isActive,
+          'looser-light': table.players[table.leftIndex].isLooser}" *ngIf="table.leftVisible"></div>
+        <div class="light right-light" [ngClass]="{'active-light': table.players[table.rightIndex].isActive,
+          'looser-light': table.players[table.rightIndex].isLooser}" *ngIf="table.rightVisible"></div>
+      </div>
+      <div class="bottom-panel">
+        <span style="line-height: 50px; padding-left: 20px; font-family: arial;">Cards in deck: {{table.cardDeckNum}}</span>
+        <button class="table-btn" *ngIf="table.buttonRights['leaveGame']" (click)="leaveGame()">Leave game</button>
+        <button class="table-btn" *ngIf="table.buttonRights['startGame']" (click)="startGame()">Start game</button>
+        <button class="table-btn" *ngIf="table.buttonRights['takeCards']" (click)="takeCards()">Take cards</button>
+        <button class="table-btn" *ngIf="table.buttonRights['skipMove']" (click)="skipMove()">Skip move</button>
+      </div>
+    </div>
+    <div class="vertical-panel">
+      <div class="right-player vertical-panel" *ngIf="table.rightVisible">
+        <card-cmp
+          *ngFor="let card of table.players[table.rightIndex].cards"
+          [card]="card" [isVisible]="true" [rotated]="true"
+          [margin]="table.players[table.rightIndex].cardsMargin">
+        </card-cmp>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-player horizintal-panel">
+    <card-cmp
+      *ngFor="let card of table.players[table.currPlayerIndex].cards; let cardIndex = index"
+      [card]="card" [isVisible]="display.visibleCurrPlayerCards" [cardIndex]="cardIndex"
+      [margin]="table.players[table.currPlayerIndex].cardsMargin">
+    </card-cmp>
+  </div>
+</div>
+
+<card-cmp class="trump"
+  *ngIf="table.showTrump()"
+  [card]="table.trump" [isVisible]="true" [rotated]="true" [sign]="trump">
+</card-cmp>
+<card-cmp class="deck"
+  *ngIf="table.showCardDeck()"
+  [isVisible]="true" [rotated]="true" [sign]="deck">
+</card-cmp>
+
+<card-cmp class="flying-card"
+  *ngFor="let card of table.flyingCards;"
+  [card]="card" [isVisible]="true">
+</card-cmp>
+<card-cmp *ngFor="let card of table.inRoundCards; let cardIndex = index"
+  [card]="card" [isVisible]="true" [cardIndex]="cardIndex" [sign]="in-round">
+</card-cmp>
+<card-cmp
+  *ngFor="let card of table.beatenCards; let cardIndex = index"
+  [card]="card" [isVisible]="true" [sign]="beaten">
+</card-cmp>
+
+
+
+<button class="table-btn"
+  style="position: absolute; top: 20px; left: calc(550px + 50%);"
+  (click)="table.resetStorage()">reset storage
+</button>

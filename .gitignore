@@ -1,0 +1,5 @@
+.idea
+coverage
+unit_coverage
+client/dev/bower_components
+typings

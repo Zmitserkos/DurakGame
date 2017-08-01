@@ -7,22 +7,17 @@ import {
   DurakGameService
 } from "../services/durak-game-service";
 
-
 import {
   Game
 } from '../classes/game';
-
 
 @Component({
   selector: "games-cmp",
   templateUrl: "durak-game/templates/games.html"
 })
 export class GamesCmp implements OnInit {
-  //games: Game[];
 
-  constructor(private games: DurakGameService) {
-
-  }
+  constructor(private games: DurakGameService) {}
 
   ngOnInit() {
 
@@ -33,9 +28,6 @@ export class GamesCmp implements OnInit {
     /**/
     this.games.createGame();
   }
-
-  ////////////////////////////////////GAMES/////////////////////////////////
-
 
   joinGame(game: Game): void {
     this.games.tempGame = game;

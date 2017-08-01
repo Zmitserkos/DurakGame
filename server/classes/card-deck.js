@@ -2,22 +2,28 @@
 var Card = require('./card').Card;
 
 class CardDeck {
-  /*static VALUES_NUM = 13;
-  static VALUES_NUM_CONTRACTED = 9;*/
+
+  static get VALUES_NUM() {
+    return 13;
+  }
+
+  static get VALUES_NUM_CONTRACTED() {
+    return 9;
+  }
 
   constructor(isContracted) {
     this.cards = [];
     this.isContracted = isContracted;
-    this.valuesNum = 0;
-  }
-
-  initDeck() {
-    this.valuesNum = (this.isContracted ? 9 : 13);
+    this.valuesNum = (
+      isContracted ?
+      CardDeck.VALUES_NUM_CONTRACTED :
+      CardDeck.VALUES_NUM
+    );
   }
 
   giveCards(number) {
     //
-    var cardsNum = this.cards.length
+    let cardsNum = this.cards.length
 
     if (!cardsNum) {
       return [];
@@ -31,13 +37,15 @@ class CardDeck {
   };
 
   shuffle() {
-    /* */
-    this.cards = [];
-    var initialDeck = [];
-    var newCard;
+    /* Method puts cards of the deck in randon order */
 
-    for (var i = 0; i < 4; i++) {
-      for (var j = 0; j < this.valuesNum; j++) {
+    let initialDeck = [];
+    let newCard;
+
+    this.cards = [];
+
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < this.valuesNum; j++) {
         if (j && this.isContracted) {
           newCard = new Card(i, j + 4);
         } else {
@@ -48,12 +56,12 @@ class CardDeck {
       }
     }
 
-    for (var k = 0; k < 4 * this.valuesNum; k++) {
+    for (let k = 0; k < 4 * this.valuesNum; k++) {
       // get a random index of the list of unselected cards
-      var randomIndex = Math.floor(Math.random() * initialDeck.length);
+      let randomIndex = Math.floor(Math.random() * initialDeck.length);
 
       // delete the selected card from initialDeck
-      var selectedCard = initialDeck.splice(randomIndex, 1)[0];
+      let selectedCard = initialDeck.splice(randomIndex, 1)[0];
 
       // add the selected card to this.cards
       this.cards.push(selectedCard);

@@ -27,7 +27,6 @@ export class InitCmp implements OnInit {
 
   ngOnInit() {
 
-    //this._durakGame.loadData();
   }
 
   playGame(): void {

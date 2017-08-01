@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  CanLoaded,
   Router,
   ActivatedRouteSnapshot,
   RouterStateSnapshot
@@ -10,10 +9,9 @@ import {
   DurakGameService
 } from "../services/durak-game-service";
 
-
 @Injectable()
-export class AuthGuard implements CanLoaded {
-  constructor(/*private authService: AuthService,*/ private router: Router, private _durakGame: DurakGameService) {}
+export class AuthGuard {
+  constructor(private _router: Router, private _durakGame: DurakGameService) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     let url: string = state.url;
@@ -22,14 +20,10 @@ export class AuthGuard implements CanLoaded {
   }
 
   checkLogin(url: string): boolean {
-
     let newRoute: string;
-//debugger;
     let userName: string = this._durakGame.getUserNameStorage();
-    let lastActivity: number = this._durakGame.getLastActivityStorage();
-    let now: number = Date.now();
 
-    if (!userName || userName === '' || (now - lastActivity) > this._durakGame.timeout) {
+    if (!userName || userName === '') {
       if (url !== '/') {
         newRoute = '/';
         this._durakGame.resetGameIdStorage();
@@ -49,7 +43,7 @@ export class AuthGuard implements CanLoaded {
     }
 
     if (newRoute) {
-      this.router.navigate([newRoute]);
+      this._router.navigate([newRoute]);
       return false;
     } else {
       return true;

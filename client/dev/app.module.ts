@@ -15,9 +15,9 @@ import { durakGameRouting } from "./durak-game/components/durak-game-route";
 
 import { DurakGameService } from "./durak-game/services/durak-game-service";
 import { DisplayService } from "./durak-game/services/display-service";
+import { TimerService } from "./durak-game/services/timer-service";
 
 import { AuthGuard } from "./durak-game/services/auth-guard-service";
-
 
 @NgModule({
     imports: [
@@ -36,6 +36,7 @@ import { AuthGuard } from "./durak-game/services/auth-guard-service";
     providers: [
       DurakGameService,
       DisplayService,
+      TimerService,
       AuthGuard
     ],
     bootstrap: [

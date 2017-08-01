@@ -21,7 +21,6 @@ var InitCmp = (function () {
         this._durakGame = _durakGame;
     }
     InitCmp.prototype.ngOnInit = function () {
-        //this._durakGame.loadData();
     };
     InitCmp.prototype.playGame = function () {
         /**/
@@ -31,14 +30,14 @@ var InitCmp = (function () {
         }
         this._durakGame.addUser(this.userName);
     };
-    InitCmp = __decorate([
-        core_1.Component({
-            selector: "init-cmp",
-            templateUrl: "durak-game/templates/init.html"
-        }),
-        __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
-    ], InitCmp);
     return InitCmp;
 }());
+InitCmp = __decorate([
+    core_1.Component({
+        selector: "init-cmp",
+        templateUrl: "durak-game/templates/init.html"
+    }),
+    __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
+], InitCmp);
 exports.InitCmp = InitCmp;
 //# sourceMappingURL=init-cmp.js.map

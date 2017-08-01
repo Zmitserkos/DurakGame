@@ -30,10 +30,9 @@
       <div class="battle-area">
         <span *ngIf="table.looserIndex != null" class="white-text">
           <h1 class="game-over-message game-over">GAME OVER</h1>
-          <h2 class="game-over-message" *ngIf="table.looserIndex !== -1">The looser is {{table.players[table.looserIndex].name}}</h2>
+          <h2 class="game-over-message" *ngIf="table.looserIndex !== -1">The looser is <span style="color: #fff;">{{table.players[table.looserIndex].name}}</span></h2>
           <h2 class="game-over-message" *ngIf="table.looserIndex === -1">DRAW</h2>
         </span>
-
         <div class="light bottom-light" [ngClass]="{'active-light': table.players[table.currPlayerIndex].isActive,
           'looser-light': table.players[table.currPlayerIndex].isLooser}"></div>
         <div class="light top-light" [ngClass]="{'active-light': table.players[table.topIndex].isActive,
@@ -44,11 +43,16 @@
           'looser-light': table.players[table.rightIndex].isLooser}" *ngIf="table.rightVisible"></div>
       </div>
       <div class="bottom-panel">
-        <span style="line-height: 50px; padding-left: 20px; font-family: arial;">Cards in deck: {{table.cardDeckNum}}</span>
+        <span class="bottom-panel-text">Cards in deck: {{table.cardDeckNum}} </span>
+        <span class="bottom-panel-text"
+          *ngIf="table.showTimer()">Timer: <span class="timer">{{timer.getTime()}}</span>
+        </span>
+        <span class="bottom-panel-text time-over" *ngIf="table.isTimeOver">TIME IS OVER</span>
         <button class="table-btn" *ngIf="table.buttonRights['leaveGame']" (click)="leaveGame()">Leave game</button>
         <button class="table-btn" *ngIf="table.buttonRights['startGame']" (click)="startGame()">Start game</button>
         <button class="table-btn" *ngIf="table.buttonRights['takeCards']" (click)="takeCards()">Take cards</button>
         <button class="table-btn" *ngIf="table.buttonRights['skipMove']" (click)="skipMove()">Skip move</button>
+        <button class="table-btn" *ngIf="table.buttonRights['backToMenu']" (click)="backToMenu()">Back to Menu</button>
       </div>
     </div>
     <div class="vertical-panel">
@@ -64,12 +68,12 @@
   <div class="bottom-player horizintal-panel">
     <card-cmp
       *ngFor="let card of table.players[table.currPlayerIndex].cards; let cardIndex = index"
-      [card]="card" [isVisible]="display.visibleCurrPlayerCards" [cardIndex]="cardIndex"
-      [margin]="table.players[table.currPlayerIndex].cardsMargin">
+      [card]="card" [isVisible]="display.visibleCurrPlayerCards"
+      [margin]="table.players[table.currPlayerIndex].cardsMargin"
+      [cardIndex]="cardIndex">
     </card-cmp>
   </div>
 </div>
-
 <card-cmp class="trump"
   *ngIf="table.showTrump()"
   [card]="table.trump" [isVisible]="true" [rotated]="true" [sign]="trump">
@@ -78,9 +82,8 @@
   *ngIf="table.showCardDeck()"
   [isVisible]="true" [rotated]="true" [sign]="deck">
 </card-cmp>
-
-<card-cmp class="flying-card"
-  *ngFor="let card of table.flyingCards;"
+<card-cmp class="animated-card"
+  *ngFor="let card of table.animatedCards;"
   [card]="card" [isVisible]="true">
 </card-cmp>
 <card-cmp *ngFor="let card of table.inRoundCards; let cardIndex = index"
@@ -91,9 +94,7 @@
   [card]="card" [isVisible]="true" [sign]="beaten">
 </card-cmp>
 
-
-
 <button class="table-btn"
   style="position: absolute; top: 20px; left: calc(550px + 50%);"
-  (click)="table.resetStorage()">reset storage
+  (click)="table.logOut()">reset storage
 </button>

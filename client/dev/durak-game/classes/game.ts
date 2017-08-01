@@ -3,7 +3,6 @@ export class Game {
   id: number;
   playerNames: string[];
   status: number;
-//  canJoin: boolean;
 
   constructor(id: number, playerNames: string[], status: number) {
     this.id = id;
@@ -12,6 +11,7 @@ export class Game {
   }
 
   canJoin(): boolean {
+    // Method returns true value if anyone can join the game
     return (this.status === 0 && this.playerNames.length < 4);
   }
 
@@ -23,16 +23,15 @@ export class Game {
     return (this.status === 0) ? 'wainting for players' :
       (this.status === 1) ? 'in progress' :
       (this.status === 2) ? 'finished' : 'undefined';
-
-    // Status === 3 'deleted'
+    // Status === 3 'deleted' - not showed
   }
 
   isActive(): boolean {
-    return this.status === 0;
+    return this.status === 0; // 'wainting for players'
   }
 
   isFinished(): boolean {
-    return this.status === 2;
+    return this.status === 2; // 'finished'
   }
 
 }

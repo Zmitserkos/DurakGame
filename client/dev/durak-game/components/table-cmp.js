@@ -12,38 +12,52 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var durak_game_service_1 = require("../services/durak-game-service");
 var display_service_1 = require("../services/display-service");
+var timer_service_1 = require("../services/timer-service");
 var TableCmp = (function () {
-    /**/
-    function TableCmp(table, display) {
+    function TableCmp(table, display, timer, elementRef) {
         this.table = table;
         this.display = display;
+        this.timer = timer;
+        this.elementRef = elementRef;
     }
     TableCmp.prototype.ngOnInit = function () {
         this.table.loadTable();
     };
-    ////////////////////////////////////TABLE/////////////////////////////////
+    //////////////////////////////////// BUTTONS /////////////////////////////////
     TableCmp.prototype.leaveGame = function () {
         this.table.leaveGame();
     };
     TableCmp.prototype.startGame = function () {
-        //
         this.table.startGame();
     };
     TableCmp.prototype.skipMove = function () {
+        this.checkTimer();
         this.table.skipMove();
     };
     TableCmp.prototype.takeCards = function () {
+        this.checkTimer();
         this.table.takeCards();
     };
-    TableCmp = __decorate([
-        core_1.Component({
-            selector: "table-cmp",
-            templateUrl: "durak-game/templates/table.html"
-        }),
-        __metadata("design:paramtypes", [durak_game_service_1.DurakGameService,
-            display_service_1.DisplayService])
-    ], TableCmp);
+    TableCmp.prototype.backToMenu = function () {
+        this.table.backToMenu();
+    };
+    TableCmp.prototype.checkTimer = function () {
+        if (this.table.isTimeOver) {
+            return;
+        }
+        this.timer.actionCommited = true;
+    };
     return TableCmp;
 }());
+TableCmp = __decorate([
+    core_1.Component({
+        selector: "table-cmp",
+        templateUrl: "durak-game/templates/table.html"
+    }),
+    __metadata("design:paramtypes", [durak_game_service_1.DurakGameService,
+        display_service_1.DisplayService,
+        timer_service_1.TimerService,
+        core_1.ElementRef])
+], TableCmp);
 exports.TableCmp = TableCmp;
 //# sourceMappingURL=table-cmp.js.map

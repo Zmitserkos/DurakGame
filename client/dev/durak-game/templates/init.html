@@ -2,9 +2,6 @@
   <form class="init-form">
     <small class="init-message">{{_durakGame.message}}</small>
     <input class="name-input" placeholder="Insert your name" [(ngModel)]="userName" name="userName">
-    <!-- (keyup.enter)="doBlurEvent(todo, i, $event)" (blur)="saveTodo(todo, i)" -->
     <button class="play-btn" (click)="playGame()">Play</button>
   </form>
 </div>
-
-<button class="table-btn" (click)="_durakGame.resetStorage()">reset storage</button>

@@ -19,12 +19,13 @@ function appSocket(io) {
 
     socket.on('disconnect', function() {
       console.log('user disconnected');
+      socket.emit('message', {type: 'disconnect'});
     });
 
     socket.on('add-user', (name) => {
 
       if (users[name]) {
-  // or log in ???
+        // or log in ???
         socket.emit('message', {type:'add-user', error: 'User with the given name has been created already!'});
       } else {
         // Create current user
@@ -38,15 +39,18 @@ function appSocket(io) {
     });
 
     // loading
-    socket.on('get-games', (keys) => {
-      var data = {};
+    socket.on('get-games', (data) => {
+      var dataToSend = {};
 
-  if(!users[keys.userName]) return; // error
+      if(!users[data.userName]) {
+        console.log('user not found');
+        return; // error
+      }
 
-      data.games = games
+      dataToSend.games = games
         .filter(function(game) {
           // Status === 3 'deleted'
-          return game !== 3;
+          return game.status !== 3;
         })
         .map(function (game) {
           var playerNames = game.players.map(function(player) {
@@ -60,7 +64,7 @@ function appSocket(io) {
           };
         });
 
-      socket.emit('message', {type:'get-games', data: data});
+      socket.emit('message', {type:'get-games', data: dataToSend});
     });
 
     socket.on('create-game', (playerName) => {
@@ -97,34 +101,27 @@ function appSocket(io) {
       }});
     });
 
-    socket.on('get-table', (keys) => {
-/*
-  //// update socketId if it's new////////////////////////
-  if (socket.id !== authorId) {
-
-    io.sockets.connected[authorId].emit('message',{type:"greeting", text:"Hey there, User 2"});
-  }
-
-  console.log('sock = '+authorId+' = '+socket.id+' - '+
-      Object.keys(socket.rooms).filter(item => item!=socket.id)[0]);
-*/
-  /////////////////////////////////////////////////////////
-      var data = {};
+    socket.on('get-table', (data) => {
+      var dataToSend = {};
 
       // !!! search by id
-      var game = games[keys.gameId - 1];
+      var game = games[data.gameId - 1];
 
-  if(!users[keys.userName]) return; // error
+      if(!users[data.userName]) {
+        console.log('user not found');
+        return; // error
+      }
 
-  if (!game) return; // error
+      if (!game) {
+        console.log('game not found');
+        return; // error
+      }
 
-      var currPlayer = game.getPlayerByName(keys.userName);
+      var currPlayer = game.getPlayerByName(data.userName);
       if (currPlayer && socket.id !== currPlayer.socketId) {
-        //socket.leave('game-' + keys.gameId);
-
         currPlayer.socketId = socket.id;
 
-        socket.join('game-' + keys.gameId);
+        socket.join('game-' + data.gameId);
       }
 
       var trump, cardDeckNumber;
@@ -133,7 +130,7 @@ function appSocket(io) {
         var cards = player.cards;
         var cardsNum;
 
-        if (player.name !== keys.userName) {
+        if (player.name !== data.userName) {
           cardsNum = cards.length;
           cards = null;
         }
@@ -141,8 +138,7 @@ function appSocket(io) {
         return {
           name: player.name,
           cards: cards,
-          cardsNum: cardsNum,
-          isLooser: player.isLooser
+          cardsNum: cardsNum
         };
       });
 
@@ -166,18 +162,23 @@ function appSocket(io) {
 
       var activePlayerIndex = (game.inGamePlayerIndexes ? game.inGamePlayerIndexes[game.currActiveIndex] : null);
 
-      data = {
-        gameId: keys.gameId,
+      dataToSend = {
+        gameId: data.gameId,
         players: players,
         status: game.status,
         trump: trump,
         beatenCardsNumber: game.beatenCards.length,
         cardDeckNumber: cardDeckNumber,
         inRoundCards: inRoundCards,
-        activePlayerIndex: activePlayerIndex
+        activePlayerIndex: activePlayerIndex,
+        looserIndex: game.looserIndex,
+        isDraw: game.isDraw,
+        endPoint: game.timerEndPoint,
+        timerPlayerIndex: game.timerPlayerIndex,
+        isTimeOver: game.isTimeOver
       };
 
-      socket.emit('message', {type:'get-table', data: data});
+      socket.emit('message', {type:'get-table', data: dataToSend});
     });
 
     socket.on('leave-game', (data) => {
@@ -185,7 +186,6 @@ function appSocket(io) {
       socket.leave('game-' + data.gameId);
 
       if (data.currPlayerIndex > 0) {
-
         games[data.gameId - 1].players.pop();
 
         io.sockets.in('game-' + data.gameId).emit('message', {type:'leave-table'});
@@ -198,14 +198,22 @@ function appSocket(io) {
         gameId: data.gameId
       }});
 
-      socket.emit('message', {type: 'leave-game', text: 'Leaving has been successfull!'});
+      socket.emit('message', {type: 'leave-game', text: 'Leaving the game has been successfull!'});
+
+      socket.join('games');
+    });
+
+    socket.on('back-to-games', (data) => {
+      // leave the current room
+      socket.leave('game-' + data.gameId);
+
+      socket.emit('message', {type: 'back-to-games', text: 'Leaving the game has been successfull!'});
 
       socket.join('games');
     });
 
     socket.on('join-game', (data) => {
       games[data.gameId - 1].players.push( new Player(socket.id, data.userName) );
-  //games[data.gameId - 1].playerActionLabels.push(null);
 
       socket.leave('games');
 
@@ -224,37 +232,31 @@ function appSocket(io) {
     });
 
     socket.on('start-game', (data) => {
-
-      var currGame = games[data.gameId - 1];
+      let currGame = games[data.gameId - 1];
 
       io.sockets.in('games').emit('message', {type:'start-games', data: {
-        gameId: data.gameId/*,
-        status: */
+        gameId: data.gameId
       }});
 
-      currGame.initPlayerActionLabels();
-
       currGame.startGame(io.sockets, data.gameId);
-
     });
 
     socket.on('make-move', (data) => {
-      var currGame = games[data.gameId - 1];
+      let currGame = games[data.gameId - 1];
 
-      var currIndex = currGame.inGamePlayerIndexes[currGame.currActiveIndex];
-      var currPlayer = currGame.players[currIndex];
-      var currCard = currPlayer.cards[data.cardIndex];
+      let currIndex = currGame.inGamePlayerIndexes[currGame.currActiveIndex];
+      let currPlayer = currGame.players[currIndex];
+      let currCard = currPlayer.cards[data.cardIndex];
 
       currGame.makeMove(data.cardIndex);
 
       io.sockets.in('game-' + data.gameId).emit('message', {type:'make-move', data: {
+        //playerIndex: currIndex,
         cardIndex: data.cardIndex,
         card: currCard
       }});
 
     });
-
-    /////////////////////////////////////////////////////////////////////
 
     socket.on('take-cards', (data) => {
       var currGame = games[data.gameId - 1];
@@ -274,10 +276,45 @@ function appSocket(io) {
       }
     });
 
+    socket.on('time-over', (data) => {
+      var currGame = games[data.gameId - 1];
 
+      currGame.isTimeOver = true;
 
+      currGame.setLooserIndex(currGame.inGamePlayerIndexes[currGame.currActiveIndex]);
 
+      currGame.endGame(io.sockets, data.gameId);
+    });
 
+    socket.on('set-timer', (data) => {
+      var currGame = games[data.gameId - 1];
+
+      currGame.timerEndPoint = data.endPoint;
+
+      currGame.timerPlayerIndex = data.playerIndex;
+
+      currGame.timerId = setTimeout(function () {
+        if (currGame.timerId) {
+          currGame.isTimeOver = true;
+
+          currGame.setLooserIndex(currGame.timerPlayerIndex);
+
+          currGame.endGame(io.sockets, data.gameId);
+        }
+      }, 2 * data.timerDuration * 1000);
+    });
+
+    socket.on('cancel-timer', (data) => {
+      var currGame = games[data.gameId - 1];
+
+      if (currGame.timerId) {
+        clearTimeout(currGame.timerId);
+
+        currGame.timerId = null;
+        currGame.timerEndPoint = null;
+        currGame.timerPlayerIndex = null;
+      }
+    });
 
 
     socket.on('complete-action', (data) => {
@@ -288,51 +325,46 @@ function appSocket(io) {
       if (currGame.playerActionLabels.every(label => label)) {
         currGame.initPlayerActionLabels();
 
+        // this parameter activates the timer on client side
+        let isTimerRun = (data.type === 'start-round' || data.type === 'next-player');
+
         io.sockets.in('game-' + data.gameId).emit('message', {type:'complete-action', data: {
-          gameId: data.gameId
+          gameId: data.gameId,
+          isTimerRun: isTimerRun,
+          type: data.type
         }});
 
         if (data.type === 'set-trump') {
-          //
+          // we'll use this parameter for setting the player's order for giving cards
           currGame.wereCardsTaken = false;
 
           currGame.giveCardsToPlayers(io.sockets);
         } else if (data.type === 'give-cards') {
-          //
+          // set attackers and defender
           currGame.setRoundActivePlayers();
 
           currGame.startRound(io.sockets);
-        } else if (data.type === 'next-player') {
-          //
-        } else
+        } else if (data.type === 'card-move') {
 
-        if (data.type === 'card-move') {
           if (currGame.isEndOfGame()) {
             currGame.endGame(io.sockets, data.gameId);
           } else if (currGame.isEndOfRound()) {
-            //
             currGame.beatInRoundCards(io.sockets, data.gameId);
           } else {
-            //
             currGame.setNextActivePlayer(io.sockets, data.gameId, false);
           }
         } else if (data.type === 'cards-to-beaten') {
+          // we'll use this parameter for setting the player's order for giving cards
           currGame.wereCardsTaken = false;
 
           currGame.giveCardsToPlayers(io.sockets);
         } else if (data.type === 'take-cards') {
+          // we'll use this parameter for setting the player's order for giving cards
           currGame.wereCardsTaken = true;
 
           if (currGame.isEndOfGame()) {
-            currGame.endGame();
 
-            io.sockets.in('game-' + data.gameId).emit('message', {type:'game-over', data: {
-              isLooser: this.looserIndex
-            }});
-
-            io.sockets.in('games').emit('message', {type:'end-game', data: {
-              gameId: data.gameId
-            }});
+            currGame.endGame(io.sockets, data.gameId);
           } else {
             currGame.giveCardsToPlayers(io.sockets);
           }

@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var durak_game_service_1 = require("../services/durak-game-service");
 var GamesCmp = (function () {
-    //games: Game[];
     function GamesCmp(games) {
         this.games = games;
     }
@@ -23,19 +22,18 @@ var GamesCmp = (function () {
         /**/
         this.games.createGame();
     };
-    ////////////////////////////////////GAMES/////////////////////////////////
     GamesCmp.prototype.joinGame = function (game) {
         this.games.tempGame = game;
         this.games.joinGame(game.id);
     };
-    GamesCmp = __decorate([
-        core_1.Component({
-            selector: "games-cmp",
-            templateUrl: "durak-game/templates/games.html"
-        }),
-        __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
-    ], GamesCmp);
     return GamesCmp;
 }());
+GamesCmp = __decorate([
+    core_1.Component({
+        selector: "games-cmp",
+        templateUrl: "durak-game/templates/games.html"
+    }),
+    __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
+], GamesCmp);
 exports.GamesCmp = GamesCmp;
 //# sourceMappingURL=games-cmp.js.map

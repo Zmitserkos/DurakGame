@@ -1,4 +1,3 @@
-
 <div class="">
   <table class="games-list">
     <tr class="game-line" *ngFor="let game of games.games; let isOdd=odd;" [ngClass]="{'odd': isOdd}">
@@ -9,5 +8,4 @@
   </table>
   <button class="create-btn" (click)="createGame()">Create game</button>
 </div>
-
-<button class="table-btn" (click)="games.resetStorage()">reset storage</button>
+<button class="table-btn" (click)="games.logOut()">Log out</button>

@@ -2,17 +2,12 @@ import {
   Component,
   Input,
   OnInit,
-  OnChanges,
   ElementRef,
   Inject,
   Injectable
 } from "@angular/core";
 
 import { Card } from '../classes/card';
-
-import {
-  CardTransition
-} from '../classes/card-transition';
 
 import {
   DurakGameService
@@ -22,16 +17,19 @@ import {
   DisplayService
 } from "../services/display-service";
 
+import {
+  TimerService
+} from "../services/timer-service";
 
 @Component({
   selector: "card-cmp",
   template: `<div class="card suit{{card.suit}} value{{card.value}}"
       (click)="makeMove()"
       [ngClass]="{'rotated': rotated, 'deactivated': isDeactivated(), 'curr-player-card': card.isActive}"
-      [ngStyle]="{'z-index': zIndex, 'margin': getMargin()}">
+      [ngStyle]="{'margin': getMargin()}">
     </div>`
 })
-export class CardCmp implements OnInit, OnChanges {
+export class CardCmp implements OnInit {
 
   @Input()
   card: Card;
@@ -46,78 +44,63 @@ export class CardCmp implements OnInit, OnChanges {
   @Input()
   sign: string;
 
-  zIndex: number;
-
   constructor(
     private elementRef: ElementRef,
     public game: DurakGameService,
-    public display: DisplayService
+    public display: DisplayService,
+    private _timer: TimerService
   ) {
-
+    
   }
 
   ngOnInit() {
+    // if the card hasn't been defined, create the face-down card
     if (!this.card) {
       this.card = new Card(4, 2, false);
     }
 
-    /*if (this.game.players.length && this.game.players[0].cards.length) {
-      debugger;
-    }*/
-
+    /* When the transition has been defined, set the transition.
+       Otherwise set the card position, if it's possible. */
     if (this.card.transition) {
       this.setTransition();
 
       this.initTransition();
-    } else if (this.card.top != undefined ||
+    } else if (
+      this.card.top != undefined ||
       this.card.left != undefined ||
-      this.card.angle != undefined) {
+      this.card.angle != undefined
+    ) {
       this.setPosition();
     }
-  }
 
-  ngOnChanges() {
-    var context = this;
-
-    if (this.sign !== 'trump') {
-      setTimeout(function() {
-        let top = context.elementRef.nativeElement.getBoundingClientRect().top;
-        let left = context.elementRef.nativeElement.getBoundingClientRect().left;
-        if ((top || left)) {
-          context.card.top = (top - 84) + 'px'; // !!!!!! 84 - header heiht!!!!! take from DOM !!!
-          context.card.left = (left) + 'px';
-        }
-      }, 0);
-    }
-
+    this.card.nativeElement = this.elementRef.nativeElement;
+    //
   }
 
   getMargin() {
-    if (this.rotated) {
-      let newMargin = (this.margin - (this.display.card.height - this.display.card.width) / 2) + 'px';
-      return newMargin + ' 0';
-    } else {
-      let newMargin = this.margin + 'px';
-      return '0 ' + newMargin;
-    }
+    /* The method returns the value of margin for a card div. */
+    return this.rotated ?
+      ((this.margin - (this.display.card.height - this.display.card.width) / 2) + 'px 0') :
+      ('0 ' + this.margin + 'px');
   }
 
   isDeactivated() {
+    //
     return !this.isVisible && !this.card.isActive;
   }
 
   setTransition() {
-    var transition = this.card.transition;
+    /* Method sets all the transition params */
+
+    let transition = this.card.transition;
 
     this.elementRef.nativeElement.style.position = 'absolute';
 
-//this.elementRef.nativeElement.style.zIndex = this.display.maxZIndex;
-    if (this.card.zIndex != null) {
-      this.elementRef.nativeElement.style.zIndex = this.card.zIndex + '';
-    }
+    this.elementRef.nativeElement.style.zIndex = this.card.zIndex + '';
 
     this.elementRef.nativeElement.style.top = transition.startTop;
     this.elementRef.nativeElement.style.left = transition.startLeft;
+
     this.elementRef.nativeElement.style.transform = 'rotate(' + transition.startAngle + 'rad)';
 
     this.elementRef.nativeElement.style.transition = 'top ' +
@@ -130,258 +113,31 @@ export class CardCmp implements OnInit, OnChanges {
 
     var context = this;
 
-    if (transition.type === 'showTrump') {
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-
-          context.game.completeAction('set-trump');
-        }
-      });
-    } else if (transition.type === 'playerToTable') {
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-
-        if (event.propertyName === 'top') {
-
-          var top = context.elementRef.nativeElement.getBoundingClientRect().top - 84; // !!!!!! 84 - header heiht!!!!! take from DOM !!!
-          var left = context.elementRef.nativeElement.getBoundingClientRect().left;
-          var width = context.elementRef.nativeElement.getBoundingClientRect().width;
-          var height = context.elementRef.nativeElement.getBoundingClientRect().height;
-
-          context.card.top = context.display.cardLocations['round'].top;
-					context.card.left = context.display.cardLocations['round'].left;
-
-          context.card.angle = context.card.transition.endAngle;
-          context.card.transition = null;
-
-          context.game.inRoundCards.push(context.card);
-
-          context.game.flyingCards.shift();
-
-          context.game.completeAction('card-move');
-        }
-      });
-    } else if (transition.type === 'deckToBottom') {
-
-      context.rotated = true;
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.currPlayerIndex].cards.push(context.card);
-          context.game.players[context.game.currPlayerIndex].updatePlayerCardMargin(
-						context.display.table.width - context.display.leftWidth - context.display.rightWidth,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('give-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'deckToTop') {
-      context.rotated = true;
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.topIndex].cards.push(context.card);
-          context.game.players[context.game.topIndex].updatePlayerCardMargin(
-						context.display.table.width - context.display.leftWidth - context.display.rightWidth,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('give-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'deckToLeft') {
-      context.rotated = true;
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'left') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.leftIndex].cards.push(context.card);
-          context.game.players[context.game.leftIndex].updatePlayerCardMargin(
-						context.display.table.height - context.display.topHeight - context.display.bottomHeight,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('give-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'deckToRight') {
-      context.rotated = true;
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'left') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.rightIndex].cards.push(context.card);
-          context.game.players[context.game.rightIndex].updatePlayerCardMargin(
-						context.display.table.height - context.display.topHeight - context.display.bottomHeight,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('give-cards');
-          }
-        }
-
-      });
-    } else if (transition.type === 'tableToBeaten') {
-
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'left') {
-
-var top = context.elementRef.nativeElement.getBoundingClientRect().top - 84; // !!!!!! 84 - header heiht!!!!! take from DOM !!!
-          var left = context.elementRef.nativeElement.getBoundingClientRect().left;
-          var width = context.elementRef.nativeElement.getBoundingClientRect().width;
-          var height = context.elementRef.nativeElement.getBoundingClientRect().height;
-
-          context.card.top = context.display.cardLocations['beaten'].top;
-					context.card.left = context.display.cardLocations['beaten'].left;
-
-          context.card.angle = context.card.transition.endAngle;
-          context.card.transition = null;
-
-          context.game.beatenCards.push(context.card);
-
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('cards-to-beaten');
-          }
-        }
-      });
-    } else if (transition.type === 'tableToBottom') {
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.currPlayerIndex].cards.push(context.card);
-          context.game.players[context.game.currPlayerIndex].updatePlayerCardMargin(
-						context.display.table.width - context.display.leftWidth - context.display.rightWidth,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('take-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'tableToTop') {
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.topIndex].cards.push(context.card);
-          context.game.players[context.game.topIndex].updatePlayerCardMargin(
-						context.display.table.width - context.display.leftWidth - context.display.rightWidth,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('take-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'tableToLeft') {
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.leftIndex].cards.push(context.card);
-          context.game.players[context.game.leftIndex].updatePlayerCardMargin(
-						context.display.table.height - context.display.topHeight - context.display.bottomHeight,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('take-cards');
-          }
-        }
-      });
-    } else if (transition.type === 'tableToRight') {
-      this.elementRef.nativeElement.addEventListener('transitionend', function(event) {
-        if (event.propertyName === 'top') {
-          context.card.transition = null;
-          context.card.top = null;
-          context.card.left = null;
-          context.card.angle = null;
-
-          context.game.players[context.game.rightIndex].cards.push(context.card);
-          context.game.players[context.game.rightIndex].updatePlayerCardMargin(
-						context.display.table.height - context.display.topHeight - context.display.bottomHeight,
-            context.display.card.width, context.display.defaultCardMargin
-					);
-          context.game.flyingCards.shift();
-
-          context.game.subActionCounter++;
-
-          if (context.game.subActionCounter === context.game.subActionNum) {
-            context.game.completeAction('take-cards');
-          }
-        }
-
-      });
+    if (
+      transition.type === 'deckToBottom' || transition.type === 'deckToTop' ||
+      transition.type === 'deckToLeft' || transition.type === 'deckToRight'
+    ) {
+      this.rotated = true;
     }
 
+    let timerId = setTimeout(
+      () => {
+        context.elementRef.nativeElement.removeEventListener('transitionend');
+
+        transition.transEnd.call(this);
+      },
+      (transition.time + transition.delay + 1) * 1000
+    );
+
+    this.elementRef.nativeElement.addEventListener('transitionend',
+      event => {
+        transition.transEnd.call(this, event, timerId);
+      }
+    );
   }
 
   initTransition() {
-
+    /* Method initializes transition */
     var transition = this.card.transition;
     var cardCmp = this;
 
@@ -394,30 +150,32 @@ var top = context.elementRef.nativeElement.getBoundingClientRect().top - 84; // 
   }
 
   setPosition() {
-
+    /* Method set a card div position */
     if (this.card.top != undefined && this.card.left != undefined) {
       this.elementRef.nativeElement.style.position = 'absolute';
       this.elementRef.nativeElement.style.top = this.card.top;
       this.elementRef.nativeElement.style.left = this.card.left;
     }
 
-    if (this.card.zIndex != null) {
-      this.elementRef.nativeElement.style.zIndex = this.card.zIndex + '';
-    } else {
-      this.elementRef.nativeElement.style.zIndex = '1000';
-    }
-
     if (this.card.angle != undefined) {
       this.elementRef.nativeElement.style.transform = 'rotate(' + this.card.angle + 'rad)';
     }
+
+    this.elementRef.nativeElement.style.zIndex = this.card.zIndex + '';
   }
 
   makeMove(): void {
-    //
-debugger;
-    if (!this.card.isActive || !this.game.isActionComleted) {
+    /* The move is only possible, when
+      - the card is active
+      - the previous action is completed
+      - time is not over */
+//debugger;
+    if (!this.card.isActive || !this.game.isActionComleted || this.game.isTimeOver) {
       return;
     }
+
+    // cancel the timer
+    this._timer.actionCommited = true;
 
     this.game.makeMove(this.cardIndex);
   }

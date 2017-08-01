@@ -13,8 +13,8 @@ var core_1 = require("@angular/core");
 var router_1 = require("@angular/router");
 var durak_game_service_1 = require("../services/durak-game-service");
 var AuthGuard = (function () {
-    function AuthGuard(/*private authService: AuthService,*/ router, _durakGame) {
-        this.router = router;
+    function AuthGuard(_router, _durakGame) {
+        this._router = _router;
         this._durakGame = _durakGame;
     }
     AuthGuard.prototype.canActivate = function (route, state) {
@@ -23,11 +23,8 @@ var AuthGuard = (function () {
     };
     AuthGuard.prototype.checkLogin = function (url) {
         var newRoute;
-        //debugger;
         var userName = this._durakGame.getUserNameStorage();
-        var lastActivity = this._durakGame.getLastActivityStorage();
-        var now = Date.now();
-        if (!userName || userName === '' || (now - lastActivity) > this._durakGame.timeout) {
+        if (!userName || userName === '') {
             if (url !== '/') {
                 newRoute = '/';
                 this._durakGame.resetGameIdStorage();
@@ -47,18 +44,18 @@ var AuthGuard = (function () {
             }
         }
         if (newRoute) {
-            this.router.navigate([newRoute]);
+            this._router.navigate([newRoute]);
             return false;
         }
         else {
             return true;
         }
     };
-    AuthGuard = __decorate([
-        core_1.Injectable(),
-        __metadata("design:paramtypes", [router_1.Router, durak_game_service_1.DurakGameService])
-    ], AuthGuard);
     return AuthGuard;
 }());
+AuthGuard = __decorate([
+    core_1.Injectable(),
+    __metadata("design:paramtypes", [router_1.Router, durak_game_service_1.DurakGameService])
+], AuthGuard);
 exports.AuthGuard = AuthGuard;
 //# sourceMappingURL=auth-guard-service.js.map

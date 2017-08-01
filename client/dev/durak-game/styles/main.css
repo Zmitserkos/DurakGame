@@ -39,7 +39,6 @@ header {
 
 .main-container {
   position: relative;
-  /*background: blue;*/
   height: 850px;
 
   display: -webkit-box;
@@ -74,7 +73,6 @@ header {
 }
 
 .init-message {
-  /*font-size: 12px;*/
   color: #d21;
   position: absolute;
   top: 220px;
@@ -86,11 +84,8 @@ header {
   display: block;
   font-size: 18px;
   height: 40px;
-
   position: absolute;
   top: 240px;
-
-  /*margin-top: 160px;*/
   padding-left: 10px;
   width: 300px;
 }
@@ -102,10 +97,8 @@ header {
   color: #fff;
   font-size: 26px;
   height: 100px;
-
   position: absolute;
   top: 310px;
-  /*margin-top: 20px;*/
   width: 100px;
 }
 
@@ -179,9 +172,8 @@ router-outlet {
   position: relative;
   background: #080;
 
-  height: 100%; /*850px;*/
+  height: 100%;
   width: 1100px;
-  /*width: 100%;*/
 
   display: -webkit-box;
   display: -webkit-flex;
@@ -283,7 +275,7 @@ router-outlet {
 
 .top-panel {
   background: #B0BA63;
-  height: 50px;
+  height: 64px;
   width: 100%;
 }
 
@@ -313,6 +305,15 @@ router-outlet {
   width: 100%;
 }
 
+.bottom-panel-text {
+  font-family: arial;
+  line-height: 50px;
+  padding: 0 160px 0 20px;
+}
+
+.timer {
+  color: #fff;
+}
 
 .battle-area {
   position: relative;
@@ -381,12 +382,12 @@ router-outlet {
   font-size: 14px;
   height: 30px;
   margin: 10px 10px 10px 0;
-  width: 100px;
+  width: 120px;
 }
 
 
 .card {
-  background: url(../assets/images/cards.png) no-repeat;/* https://i.stack.imgur.com/3N4LS.png*/
+  background: url(../assets/images/cards.png) no-repeat;
   border-radius: 8px;
   height: 123px;
   overflow: hidden;
@@ -395,21 +396,11 @@ router-outlet {
 
 .deactivated {
   background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(../assets/images/cards.png) no-repeat;
-  /*opacity: 0.5;*/
 }
 
 .rotated{
-  /*margin: -18px 22px;*/ /*26px*/
   transform: rotate(90deg);
 }
-
-/*.horizintal-card {
-  margin: -18px 0;
-}
-
-.vertical-card {
-  margin: 0 4px;
-}*/
 
 .curr-player-card {
   transition: transform 0.3s;
@@ -417,28 +408,23 @@ router-outlet {
 
 .curr-player-card:hover {
   transform: translateY(-20px);
-  /*margin-top: -50px;*/
 }
 
-/*#btn:hover {
-  background: #f00;
-}*/
-
 .trump {
-  left: calc(75% + 236px); /*calc(3*(100% - 1100px)/4 + 1100px - 39px)*/
+  left: calc(75% + 236px);
   position: absolute;
   top: calc(50% - 62px);
   z-index: 900;
 }
 
 .deck {
-  left: calc(75% + 236px); /*calc(3*(100% - 1100px)/4 + 1100px - 39px)*/
+  left: calc(75% + 236px);
   position: absolute;
   top: calc(50% - 22px);
   z-index: 2000;
 }
 
-.flying-card {
+.animated-card {
   position: absolute;
 }
 
@@ -457,7 +443,6 @@ router-outlet {
 .value6 { background-position-x: -474px; }
 .value7 { background-position-x: -553px; }
 .value8 { background-position-x: -632px; }
-
 .value9 { background-position-x: -711px; }
 .value10 { background-position-x: -790px; }
 .value11 { background-position-x: -869px; }
@@ -473,6 +458,10 @@ router-outlet {
 
 .game-over {
   padding-top: 20px;
+}
+
+.time-over {
+  color: #e00;
 }
 
 .game-over-message {

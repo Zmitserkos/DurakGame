@@ -2,6 +2,7 @@
 import {
   Component,
   OnInit,
+  ElementRef
 } from "@angular/core";
 
 import {
@@ -12,21 +13,21 @@ import {
   DisplayService
 } from "../services/display-service";
 
-import { Card } from '../classes/card';
-import { Player } from '../classes/player';
-
-import { CardCmp } from "../components/card-cmp";
+import {
+  TimerService
+} from "../services/timer-service";
 
 @Component({
   selector: "table-cmp",
   templateUrl: "durak-game/templates/table.html"
 })
 export class TableCmp implements OnInit {
-  /**/
 
   constructor(
-    private table: DurakGameService,
-    public display: DisplayService
+    public table: DurakGameService,
+    public display: DisplayService,
+    public timer: TimerService,
+    private elementRef: ElementRef
   ) {
 
   }
@@ -36,24 +37,37 @@ export class TableCmp implements OnInit {
     this.table.loadTable();
   }
 
-  ////////////////////////////////////TABLE/////////////////////////////////
-
+  //////////////////////////////////// BUTTONS /////////////////////////////////
   leaveGame(): void {
-
     this.table.leaveGame();
   }
 
   startGame(): void {
-    //
     this.table.startGame();
   }
 
   skipMove(): void {
+    this.checkTimer();
+
     this.table.skipMove();
   }
 
   takeCards(): void {
+    this.checkTimer();
+
     this.table.takeCards();
+  }
+
+  backToMenu(): void {
+    this.table.backToMenu();
+  }
+
+  checkTimer(): void {
+    if (this.table.isTimeOver) {
+      return;
+    }
+
+    this.timer.actionCommited = true;
   }
 
 }

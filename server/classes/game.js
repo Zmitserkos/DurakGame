@@ -7,60 +7,95 @@ class Game {
   constructor(id, players, isContracted) {
     this.id = id;
     this.players = players;
-this.playerActionLabels = null; // array for storing the params
 
-    this.status = 0; // 'wainting for players'
+    // array for storing the params of fulfilment any action сorresponding to players
+    this.playerActionLabels = null;
+
+    // status = 0 - 'wainting for players'
+    this.status = 0;
+
+    // card deck
     this.cardDeck = new CardDeck(isContracted);
-    this.trump = null; // trump card
+
+    // trump card
+    this.trump = null;
+
+    // array of cards in the current round
     this.inRoundCards = [];
+
+    // array of cards out of the game
     this.beatenCards = [];
 
+    // list of indexes of the attackers
     this.attackersIndexes = null;
+
+    // index of the defender
     this.defenderIndex = null;
 
+    // list of the player's indexes which are still in game
     this.inGamePlayerIndexes = null;
+
+    // the index of the current active player
     this.currActiveIndex = null;
 
+    // the list of card values which are admissible for attack
     this.acceptableValues = null;
 
-    this.missingMoveCounter = null;
+    // the counter of the move skips of the players
+    this.skipOfMoveCounter = null;
 
-    this.isDraw = null; // equals 'true', when the last move as beaten the card and the players have no any card
-    this.looserIndex = null; // index in 'the 'this.players' array
+    // equals 'true', when the last move as beaten the card and the players have no any card
+    this.isDraw = null;
 
-    this.wereCardsTaken = null; // equals 'true', when a player has pressed the "Take Cards" button
+    // index of the looser in 'this.players' array
+    this.looserIndex = null;
+
+    // equals 'true', when a player has pressed the "Take Cards" button
+    this.wereCardsTaken = null;
+
+    // end point of the timer
+    this.timerEndPoint = null;
+
+    // index of the player which has set the timer on client
+    this.timerPlayerIndex = null;
+
+    // equals 'true' if time of the move is over for any player
+    this.isTimeOver = null;
+
+    // ID of the server timer
+    this.timerId = null;
   }
 
   getPlayerByName(name) {
-    return this.players.filter(function(player) {
-      return player.name === name;
-    })[0];
+    return this.players.filter(
+      player => player.name === name
+    )[0];
   }
 
   initPlayerActionLabels() {
-    this.playerActionLabels = this.players.map(function() {
-      return null;
-    });
+    // reset the values of the array before each subsequent action
+    this.playerActionLabels = this.players.map(
+      () => null
+    );
   }
 
   startGame(sockets, gameId) {
     // status = 1 - 'in progress'
     this.status = 1;
 
+    this.initPlayerActionLabels();
+
     this.setInGamePlayerIndexes();
 
-    this.cardDeck.initDeck();
     this.cardDeck.shuffle();
 
     this.setTrump(sockets, gameId);
-
-
   }
 
   setInGamePlayerIndexes() {
     /* Players are stored in 'players' in real order of joining the game.
        So the second player is always opposite to the first one.
-       Thus 'players' needs to secial ordering for playing */
+       Thus 'players' needs to special ordering for play */
     if (this.players.length === 2) {
       this.inGamePlayerIndexes = [0, 1];
     } else if (this.players.length === 4) {
@@ -69,7 +104,8 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   setTrump(sockets, gameId) {
-    var firstCard = this.cardDeck.cards[0];
+    // first card in the deck
+    let firstCard = this.cardDeck.cards[0];
     this.trump = new Card(firstCard.suit, firstCard.value, false, false);
 
     sockets.in('game-' + gameId).emit('message', {type:'set-trump', data: {
@@ -82,27 +118,26 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   startRound(sockets) {
-    var currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
+    let currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
 
+    // Reset main options
     this.inRoundCards = [];
     this.acceptableValues = Object.create(null);
-    this.missingMoveCounter = 0;
+    this.skipOfMoveCounter = 0;
 
     currPlayer.setActiveCardsForAttacker(this.acceptableValues, 0);
-/// change cycle
 
     this.sendInitRoundData(sockets);
   }
 
   sendInitRoundData(sockets) {
-    var currGame = this;
+    /* Methods sends to client initial data before the start of te round */
 
-    currGame.players.forEach(function(inGamePlayer) {
-      //
-      var activePlayerIndex = currGame.inGamePlayerIndexes[currGame.currActiveIndex];
-      var activeCards = currGame.players[activePlayerIndex].cards.map(function(card) {
-        return card.isActive;
-      });
+    this.players.forEach( inGamePlayer => {
+      let activePlayerIndex = this.inGamePlayerIndexes[this.currActiveIndex];
+      let activeCards = this.players[activePlayerIndex].cards.map(
+        card => card.isActive
+      );
 
       sockets.connected[inGamePlayer.socketId].emit('message', {type:'start-round', data: {
         activePlayerIndex: activePlayerIndex,
@@ -112,10 +147,10 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   giveCardsToPlayers(sockets) {
-    var firstPlayerIndex, lastPlayerIndex, newIndex, cardsNeed, givenCards, cards;
-    var cardsToGive = [];
-    var i = 0;
-    var playersNum = this.inGamePlayerIndexes.length;
+    let firstPlayerIndex, lastPlayerIndex, newIndex, cardsNeed, givenCards, cards;
+    let cardsToGive = [];
+    let i = 0;
+    let playersNum = this.inGamePlayerIndexes.length;
 
     if (this.cardDeck.cards.length) {
       if (this.defenderIndex != null) {
@@ -135,12 +170,12 @@ this.playerActionLabels = null; // array for storing the params
           givenCards = this.cardDeck.giveCards(cardsNeed);
 
           if (givenCards.length) {
-            cards = givenCards.map(function(card) {
-              return {
+            cards = givenCards.map(
+              card => ({
                 suit: card.suit,
                 value: card.value
-              };
-            });
+              })
+            );
 
             cardsToGive.push({
               playerIndex: newIndex,
@@ -187,39 +222,44 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   sendCards(sockets, newCardsData) {
-    var currGame = this;
+    /* Method sends cards to the client */
+    this.players.forEach(
+      player => {
+        //
+        let cardsToGiveData = newCardsData.map(
+          obj => {
+            let playerIndex = this.inGamePlayerIndexes[obj.playerIndex];
 
-    currGame.players.forEach(function(player) {
-      //
-      var cardsToGiveData = newCardsData.map(function(obj) {
+            let cards = obj.cards;
+            let cardsNum;
 
-        var playerIndex = currGame.inGamePlayerIndexes[obj.playerIndex];
+            if (player.name !== this.players[playerIndex].name) {
+              cardsNum = obj.cards.length;
+              cards = null;
+            }
 
-        var cards = obj.cards;
-        var cardsNum;
+            return {
+              playerIndex: playerIndex,
+              cards: cards,
+              cardsNum: cardsNum
+            };
+          }
+        );
 
-
-        if (player.name !== currGame.players[playerIndex].name) {
-          cardsNum = obj.cards.length;
-          cards = null;
-        }
-
-        return {
-          playerIndex: playerIndex,
-          cards: cards,
-          cardsNum: cardsNum
-        };
-      });
-
-      sockets.connected[player.socketId].emit('message', {type:'give-cards', data: {
-        cardsToGiveData: cardsToGiveData
-      }});
-    });
+        sockets.connected[player.socketId].emit('message', {type: 'give-cards', data: {
+            cardsToGiveData: cardsToGiveData
+          }
+        });
+      }
+    );
   }
 
   removeEmptyPlayers() {
-    var i = 0;
-    var playersNum = this.inGamePlayerIndexes.length;
+    /* Method removes player indexes from "inGamePlayerIndexes" array
+       if player has no cards and card deck is empty */
+
+    let i = 0;
+    let playersNum = this.inGamePlayerIndexes.length;
 
     while (i < playersNum) {
       if (!this.players[this.inGamePlayerIndexes[i]].cards.length) {
@@ -236,7 +276,7 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   setRoundActivePlayers() {
-    // Method sets attackers and defender
+    /* Method sets attackers and defender */
 
     this.removeEmptyPlayers();
 
@@ -257,10 +297,10 @@ this.playerActionLabels = null; // array for storing the params
   }
 
   makeMove(cardIndex) {
-console.log('mk-mvvvvv '+cardIndex);
-    var currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
-console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGamePlayerIndexes[this.currActiveIndex]);
-    var newCard = currPlayer.cards[cardIndex];
+    //
+    let currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
+
+    let newCard = currPlayer.cards[cardIndex];
 
     this.acceptableValues[newCard.value] = true;
 
@@ -274,11 +314,11 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
 
       if (this.inRoundCards.length % 2) {
         //attacker
-        var deletedAttackerIndex = this.attackersIndexes.indexOf(this.currActiveIndex);
+        let deletedAttackerIndex = this.attackersIndexes.indexOf(this.currActiveIndex);
         this.attackersIndexes.splice(deletedAttackerIndex, 1);
 
-        var i = 0;
-        var attackersNum = this.attackersIndexes.length;
+        let i = 0;
+        let attackersNum = this.attackersIndexes.length;
 
         while (i < attackersNum) {
           if (this.attackersIndexes[i] > this.currActiveIndex) {
@@ -302,13 +342,13 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
 
   takeCards(sockets, gameId) {
     //
-    var currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
+    let currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
 
     Array.prototype.push.apply(currPlayer.cards, this.inRoundCards);
 
-    currPlayer.cards.forEach(function(card) {
-      card.isActive = false;
-    });
+    currPlayer.cards.forEach(
+      card => card.isActive = false
+    );
 
     this.inRoundCards = [];
 
@@ -317,13 +357,13 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
 
   skipMove() {
     //
-    var currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
+    let currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
 
-    this.missingMoveCounter++;
+    this.skipOfMoveCounter++;
   }
 
   isEndOfGame() {
-    var playersNum = this.inGamePlayerIndexes.length;
+    let playersNum = this.inGamePlayerIndexes.length;
 
     // Draw
     if (playersNum === 0) {
@@ -332,9 +372,9 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
     }
 
     if (playersNum === 1) {
-      var lastPlayerIndex = this.inGamePlayerIndexes[0];
+      let lastPlayerIndex = this.inGamePlayerIndexes[0];
 
-      var cardsNum = this.players[lastPlayerIndex].cards.length;
+      let cardsNum = this.players[lastPlayerIndex].cards.length;
 
       if (cardsNum > 1) {
         this.looserIndex = lastPlayerIndex;
@@ -342,12 +382,12 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
       }
 
       if (cardsNum === 1) {
-        var lastCard = this.players[lastPlayerIndex].cards[0];
-        var attackingCard = this.inRoundCards[this.inRoundCards.length - 1];
+        let lastCard = this.players[lastPlayerIndex].cards[0];
+        let attackingCard = this.inRoundCards[this.inRoundCards.length - 1];
 
         if (attackingCard.isHigherThen(lastCard, this.trump.suit)) {
 
-          this.looserIndex = lastPlayerIndex;
+          this.setLooserIndex(lastPlayerIndex);
           return true;
         } else {
           return false;
@@ -358,34 +398,48 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
     }
   }
 
+  setLooserIndex(looserIndex) {
+
+    this.looserIndex = looserIndex;
+  }
+
   endGame(sockets, gameId) {
     //
-    if (this.inGamePlayerIndexes.length) {
-      this.looserIndex = this.inGamePlayerIndexes[0];
+    if (this.looserIndex == null) {
+      if (this.inGamePlayerIndexes.length) {
+        this.looserIndex = this.inGamePlayerIndexes[0];
+      }
     }
 
-    // if exists looser --> set isLooser
-    // set message
-    // send status to 'games'
+    // deactivate all the cards
+    this.players.forEach(
+      player => {
+        player.cards.forEach(
+          card => card.isActive = false
+        );
+      }
+    );
 
-    sockets.in('game-' + gameId).emit('message', {type:'game-over', data: {
+    // status = 2 - 'finished'
+    this.status = 2;
+
+    sockets.in('game-' + gameId).emit('message', {type: 'game-over', data: {
       looserIndex: this.looserIndex,
-      isDraw: this.isDraw
+      isDraw: this.isDraw,
+      isTimeOver: this.isTimeOver
     }});
 
-    sockets.in('games').emit('message', {type:'end-game', data: {
+    // send status to 'games'
+    sockets.in('games').emit('message', {type: 'end-game', data: {
       gameId: gameId
     }});
   }
 
   isEndOfRound() {
-    if (!(this.inRoundCards.length % 2)) {
-      /* End of round is only possible after a move of defender or after a skip of the last attacker */
+    /* Method detects the end of the round. */
 
-/*if (this.missingMoveCounter === this.attackersIndexes.length) {
-        // skip of the last attacker
-        return true;
-      }*/
+    if ( !(this.inRoundCards.length % 2) ) {
+      /* End of round is only possible after a move of defender or after a skip of the last attacker */
 
       // defender is out of the game or has no cards
       if ((this.defenderIndex == null) ||
@@ -395,13 +449,13 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
       }
 
       // attakers have no active cards or have skipped the move
-      var attackersNum = this.attackersIndexes.length;
-      var i = (this.missingMoveCounter > 0 ? this.missingMoveCounter : 0);
+      let attackersNum = this.attackersIndexes.length;
+      let i = (this.skipOfMoveCounter > 0 ? this.skipOfMoveCounter : 0);
 
       while(i < attackersNum) {
-        var currPlayer = this.players[this.inGamePlayerIndexes[this.attackersIndexes[i]]];
+        let currPlayer = this.players[this.inGamePlayerIndexes[this.attackersIndexes[i]]];
 
-        var activeCardsNum = currPlayer.getActiveCardsForAttacker(this.acceptableValues);
+        let activeCardsNum = currPlayer.getActiveCardsForAttacker(this.acceptableValues);
         if (activeCardsNum) {
           return false;
         }
@@ -416,7 +470,6 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
   }
 
   beatInRoundCards(sockets, gameId) {
-    //
     Array.prototype.push.apply(this.beatenCards, this.inRoundCards);
 
     this.inRoundCards = [];
@@ -427,7 +480,7 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
   setFirstAttackingPlayer() {
     //
     if (this.wereCardsTaken || this.beatenCards.length) {
-      var step = (this.wereCardsTaken ? 1 : 0);
+      let step = +this.wereCardsTaken;
 
       if (this.defenderIndex != null) {
         this.currActiveIndex = (this.defenderIndex + step) % this.inGamePlayerIndexes.length;
@@ -439,14 +492,17 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
   }
 
   setGameStartingPlayer() {
-    var minTrumpValue;
-    var maxValue = 100;
-    var playerIndex = 0;
-    var trumpSuit = this.trump.suit;
-    var players = this.players;
+    /* Method sets the starting player according to the rules (the player
+       with a tramp card of the minimal value). If players have no trump cards,
+       the starting player is the author. */
+    let minTrumpValue;
+    let maxValue = 100;
+    let playerIndex = 0;
+    let trumpSuit = this.trump.suit;
+    let players = this.players;
 
-    this.inGamePlayerIndexes.forEach(function(value, index) {
-      var minPlayerTrumpValue = players[value].minValueOfSuit(trumpSuit, maxValue);
+    this.inGamePlayerIndexes.forEach( (value, index) => {
+      let minPlayerTrumpValue = players[value].minValueOfSuit(trumpSuit, maxValue);
 
       if (minTrumpValue === undefined || Card.compareValues(minPlayerTrumpValue, minTrumpValue) < 0) {
         minTrumpValue = minPlayerTrumpValue;
@@ -464,28 +520,27 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
   setNextActivePlayer(sockets, gameId, wasMoveSkipped) {
     //
     if (wasMoveSkipped) {
-      var attackerIndex = this.attackersIndexes.indexOf(this.currActiveIndex);
+      let attackerIndex = this.attackersIndexes.indexOf(this.currActiveIndex);
 
       this.currActiveIndex = this.attackersIndexes[attackerIndex + 1];
     } else {
       if (this.inRoundCards.length % 2) {
         // was an attacker
         this.currActiveIndex = this.defenderIndex;
-        this.missingMoveCounter = 0;
+        this.skipOfMoveCounter = 0;
       } else {
         // was a defender
-
-        var i = 0;
-        var attackersNum = this.attackersIndexes.length;
+        let i = 0;
+        let attackersNum = this.attackersIndexes.length;
 
         while(i < attackersNum) {
-          var currPlayer = this.players[this.inGamePlayerIndexes[this.attackersIndexes[i]]];
+          let currPlayer = this.players[this.inGamePlayerIndexes[this.attackersIndexes[i]]];
 
           if (currPlayer.getActiveCardsForAttacker(this.acceptableValues)) {
             break; //
           }
 
-          this.missingMoveCounter++;
+          this.skipOfMoveCounter++;
           i++;
         }
 
@@ -499,19 +554,17 @@ console.log('pl '+currPlayer+ ' === '+ this.currActiveIndex + ' === '+ this.inGa
   }
 
   setActivePlayerCards() {
-    var currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
+    let currPlayer = this.players[this.inGamePlayerIndexes[this.currActiveIndex]];
 
     currPlayer.setActiveCards(this.trump.suit, this.inRoundCards, this.acceptableValues);
   }
 
   sendNextActivePlayer(sockets, gameId) {
-    var cardParams = this.players[this.inGamePlayerIndexes[this.currActiveIndex]].cards
-      .map(function(card) {
-        return card.isActive;
-      });
+    let cardParams = this.players[this.inGamePlayerIndexes[this.currActiveIndex]].cards.map(
+      card => card.isActive
+    );
 
-//sockets.connected[player.socketId].emit('message', {type:'next-player', data: {
-    sockets.in('game-' + gameId).emit('message', {type:'next-player', data: {
+    sockets.in('game-' + gameId).emit('message', {type: 'next-player', data: {
       index: this.inGamePlayerIndexes[this.currActiveIndex],
       params: cardParams
     }});

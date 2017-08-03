@@ -329,7 +329,7 @@ var DurakGameService = (function () {
         this.socket.emit('complete-action', {
             type: type,
             index: this.currPlayerIndex,
-            gameId: gameId,
+            gameId: gameId
         });
     };
     DurakGameService.prototype.showTrump = function () {

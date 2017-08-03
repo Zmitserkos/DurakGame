@@ -82,6 +82,16 @@ var TimerService = (function () {
         // cancel timer on server
         this.durakGame.cancelTimer();
     };
+    TimerService.prototype.completeAction = function (isTimerRun) {
+        this.actionCommited = false;
+        this.durakGame.isTimeOver = false;
+        this.durakGame.setIsActionComleted(true);
+        if (isTimerRun &&
+            this.durakGame.currPlayerIndex != null &&
+            this.durakGame.activePlayerIndex === this.durakGame.currPlayerIndex) {
+            this.run();
+        }
+    };
     return TimerService;
 }());
 TimerService = __decorate([

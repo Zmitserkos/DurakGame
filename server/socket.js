@@ -126,7 +126,7 @@ function appSocket(io) {
 
       var trump, cardDeckNumber;
 
-      var players = game.players.map(function(player) {
+      var players = game.players.map(function(player, index) {
         var cards = player.cards;
         var cardsNum;
 
@@ -153,14 +153,14 @@ function appSocket(io) {
         cardDeckNumber = game.cardDeck.cards.length;
       }
 
-      var inRoundCards = game.inRoundCards.map(function(card) {
+      let inRoundCards = game.inRoundCards.map(function(card) {
         return {
           suit: card.suit,
           value: card.value
         };
       });
 
-      var activePlayerIndex = (game.inGamePlayerIndexes ? game.inGamePlayerIndexes[game.currActiveIndex] : null);
+      let activePlayerIndex = (game.inGamePlayerIndexes ? game.inGamePlayerIndexes[game.currActiveIndex] : null);
 
       dataToSend = {
         gameId: data.gameId,
@@ -175,7 +175,8 @@ function appSocket(io) {
         isDraw: game.isDraw,
         endPoint: game.timerEndPoint,
         timerPlayerIndex: game.timerPlayerIndex,
-        isTimeOver: game.isTimeOver
+        isTimeOver: game.isTimeOver,
+        actionType: game.actionType
       };
 
       socket.emit('message', {type:'get-table', data: dataToSend});
@@ -316,11 +317,11 @@ function appSocket(io) {
       }
     });
 
-
     socket.on('complete-action', (data) => {
       var currGame = games[data.gameId - 1];
 
       currGame.playerActionLabels[data.index] = true;
+      currGame.actionType = data.type;
 
       if (currGame.playerActionLabels.every(label => label)) {
         currGame.initPlayerActionLabels();

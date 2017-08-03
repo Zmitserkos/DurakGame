@@ -195,6 +195,11 @@ export class App {
 				durakGame.setButtonRights();
 
         durakGame.setIsActionComleted(true);
+
+				if (message.data.actionType) {
+
+					durakGame.completeAction(message.data.actionType);
+				}
       } else if (message.type === 'leave-table') {
 
 				durakGame.players.pop();
@@ -590,19 +595,7 @@ export class App {
 				}
 			} else if (message.type === 'complete-action') {
         //
-        timer.actionCommited = false;
-				durakGame.isTimeOver = false;
-
-        durakGame.setIsActionComleted(true);
-
-				if (
-          message.data.isTimerRun &&
-					durakGame.currPlayerIndex != null &&
-          durakGame.activePlayerIndex === durakGame.currPlayerIndex
-		    ) {
-
-		      timer.run();
-		    }
+        timer.completeAction(message.data.isTimerRun);
 
 		  } else if (message.type === 'game-over') {
         // set the looser by index or draw

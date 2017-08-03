@@ -64,6 +64,9 @@ class Game {
 
     // ID of the server timer
     this.timerId = null;
+
+    //
+    this.actionType = null;
   }
 
   getPlayerByName(name) {
@@ -77,6 +80,8 @@ class Game {
     this.playerActionLabels = this.players.map(
       () => null
     );
+
+    this.actionType = null;
   }
 
   startGame(sockets, gameId) {

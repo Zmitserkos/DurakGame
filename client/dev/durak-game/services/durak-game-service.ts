@@ -473,7 +473,7 @@ export class DurakGameService {
     this.socket.emit('complete-action', {
       type: type,
       index: this.currPlayerIndex,
-      gameId: gameId,
+      gameId: gameId
     });
   }
 

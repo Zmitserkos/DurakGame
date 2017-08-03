@@ -107,4 +107,20 @@ export class TimerService {
     this.durakGame.cancelTimer();
   }
 
+  completeAction(isTimerRun: boolean):void {
+    this.actionCommited = false;
+    this.durakGame.isTimeOver = false;
+
+    this.durakGame.setIsActionComleted(true);
+
+    if (
+      isTimerRun &&
+      this.durakGame.currPlayerIndex != null &&
+      this.durakGame.activePlayerIndex === this.durakGame.currPlayerIndex
+    ) {
+
+      this.run();
+    }
+  }
+
 }

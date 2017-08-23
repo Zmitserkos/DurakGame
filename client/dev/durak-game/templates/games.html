@@ -1,6 +1,6 @@
-<div class="">
+<div>
   <table class="games-list">
-    <tr class="game-line" *ngFor="let game of games.games; let isOdd=odd;" [ngClass]="{'odd': isOdd}">
+    <tr class="game-line" *ngFor="let game of durakGame.games; let isOdd=odd;" [ngClass]="{'odd': isOdd}">
       <td class="game-name"><span>{{game.getName()}}</span></td>
       <td class="game-status"><span [ngClass]="{'active-game': game.isActive(), 'finished-game': game.isFinished()}">{{game.getStatus()}}</span></td>
       <td class="game-btn-cell"><button class="game-btn" *ngIf="game.canJoin()" (click)="joinGame(game)">Join</button></td>
@@ -8,4 +8,4 @@
   </table>
   <button class="create-btn" (click)="createGame()">Create game</button>
 </div>
-<button class="table-btn" (click)="games.logOut()">Log out</button>
+<button class="table-btn" (click)="durakGame.logOut()">Log out</button>

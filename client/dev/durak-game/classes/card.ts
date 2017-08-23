@@ -39,6 +39,7 @@ export class Card {
 
     if (top || left) {
       context.top = (top - 80) + 'px'; // ????
+
       context.left = (left) + 'px';
     }
   }

@@ -1,0 +1,5 @@
+<div class="card suit{{card.suit}} value{{card.value}}"
+  (click)="makeMove()"
+  [ngClass]="{'rotated': rotated, 'deactivated': isDeactivated(), 'curr-player-card': card.isActive}"
+  [ngStyle]="{'margin': getMargin()}">
+</div>

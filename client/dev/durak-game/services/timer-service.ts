@@ -1,9 +1,6 @@
 import {
-  Inject,
   Injectable
 } from "@angular/core";
-
-import { DOCUMENT } from '@angular/platform-browser';
 
 import {
   DurakGameService
@@ -19,8 +16,7 @@ export class TimerService {
   options;
 
   constructor(
-    public durakGame: DurakGameService,
-    @Inject(DOCUMENT) private document: any
+    public durakGame: DurakGameService
   ) {
 
     this.duration = 20;

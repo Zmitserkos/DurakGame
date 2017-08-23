@@ -276,12 +276,12 @@ var DisplayService = (function () {
         beatenCards.forEach(function (card) { return card.zIndex = ++_this.maxZIndex; });
         inRoundCards.forEach(function (card) { return card.zIndex = ++_this.maxZIndex; });
     };
+    DisplayService = __decorate([
+        core_1.Injectable(),
+        __param(0, core_1.Inject(platform_browser_1.DOCUMENT)),
+        __metadata("design:paramtypes", [Object])
+    ], DisplayService);
     return DisplayService;
 }());
-DisplayService = __decorate([
-    core_1.Injectable(),
-    __param(0, core_1.Inject(platform_browser_1.DOCUMENT)),
-    __metadata("design:paramtypes", [Object])
-], DisplayService);
 exports.DisplayService = DisplayService;
 //# sourceMappingURL=display-service.js.map

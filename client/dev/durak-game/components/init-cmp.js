@@ -10,34 +10,51 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-/*import {
-  Validators,
-  FormGroup,
-  FormControl
-} from "@angular/forms";*/
+var router_1 = require("@angular/router");
 var durak_game_service_1 = require("../services/durak-game-service");
+var socket_service_1 = require("../services/socket-service");
+var user_1 = require("../classes/user");
 var InitCmp = (function () {
-    function InitCmp(_durakGame) {
-        this._durakGame = _durakGame;
+    function InitCmp(durakGame, socket, router) {
+        var _this = this;
+        this.durakGame = durakGame;
+        this.socket = socket;
+        this.router = router;
+        // Load socket event handlers
+        socket.socketEventHandlers['add-user'] = function (message) {
+            if (!message.error) {
+                durakGame.user = new user_1.User(durakGame.tempUserName);
+                // Save username to session storage
+                durakGame.setUserNameStorage();
+                // redirect to the page with info about all the games
+                _this.router.navigate(['/games']);
+            }
+            else {
+                durakGame.message = message.error;
+            }
+        };
     }
     InitCmp.prototype.ngOnInit = function () {
     };
     InitCmp.prototype.playGame = function () {
         /**/
         if (!this.userName) {
-            this._durakGame.message = "Insert your name";
+            this.durakGame.message = "Insert your name";
             return;
         }
-        this._durakGame.addUser(this.userName);
+        this.durakGame.addUser(this.userName);
     };
+    InitCmp = __decorate([
+        core_1.Component({
+            selector: "init-cmp",
+            templateUrl: "durak-game/templates/init.html",
+            styleUrls: ["durak-game/styles/css/init.css"]
+        }),
+        __metadata("design:paramtypes", [durak_game_service_1.DurakGameService,
+            socket_service_1.SocketService,
+            router_1.Router])
+    ], InitCmp);
     return InitCmp;
 }());
-InitCmp = __decorate([
-    core_1.Component({
-        selector: "init-cmp",
-        templateUrl: "durak-game/templates/init.html"
-    }),
-    __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
-], InitCmp);
 exports.InitCmp = InitCmp;
 //# sourceMappingURL=init-cmp.js.map

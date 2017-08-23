@@ -4,36 +4,21 @@ import {
 } from "@angular/core";
 
 import {
-  Observable
-} from "rxjs/Observable";
+	Router
+} from "@angular/router";
 
 import {
-  Http,
-  Headers
-} from "@angular/http";
+  SocketService
+} from "../services/socket-service";
 
 import { Card } from '../classes/card';
 import { User } from '../classes/user';
 import { Player } from '../classes/player';
 import { Game } from '../classes/game';
-
-import {
-  CardTransition
-} from '../classes/card-transition';
-
-import {
-	Router
-} from "@angular/router";
-
-import "rxjs/add/operator/map";
-
-import * as io from 'socket.io-client/socket.io'
+import { CardTransition } from '../classes/card-transition';
 
 @Injectable()
 export class DurakGameService {
-  private url = 'http://localhost:3333';
-  private socket = io(this.url);
-
   // current user
   user: User;
 
@@ -116,8 +101,8 @@ export class DurakGameService {
   isTimeOver: boolean;
 
   constructor(
-    @Inject(Http) private _http: Http,
-    public router: Router
+    public router: Router,
+    private socket: SocketService
   ) {
 
     this.user = new User("");
@@ -145,27 +130,10 @@ export class DurakGameService {
     this.setButtonRights();
   }
 
-  getMessages() {
-    let observable = new Observable(observer => {
-      this.socket = io(this.url);
-
-      this.socket.on('message', (data) => {
-        observer.next(data);
-      });
-
-      return () => {
-        this.socket.disconnect();
-      };
-    })
-    //
-
-    return observable;
-  }
-
   addUser(name: string): void {
     this.tempUserName = name;
 
-    this.socket.emit('add-user', name);
+    this.socket.socketEmit('add-user', name);
   }
 
   loadGames(): void {
@@ -174,7 +142,7 @@ export class DurakGameService {
 
     this.tempUserName = userName;
 
-    this.socket.emit('get-games', {userName: userName});
+    this.socket.socketEmit('get-games', {userName: userName});
   }
 
   loadTable(): void {
@@ -183,7 +151,7 @@ export class DurakGameService {
     let gameId: number = this.getGameIdStorage();
 
     this.tempUserName = userName;
-    this.socket.emit('get-table', {userName: userName, gameId: gameId});
+    this.socket.socketEmit('get-table', {userName: userName, gameId: gameId});
   }
 
   getUserNameStorage(): string {
@@ -219,7 +187,7 @@ export class DurakGameService {
 
   createGame() {
 
-    this.socket.emit('create-game', this.user.name);
+    this.socket.socketEmit('create-game', this.user.name);
   }
 
   setIndexes(): void {
@@ -343,7 +311,7 @@ export class DurakGameService {
 
   leaveGame(): void {
 
-    this.socket.emit('leave-game', {
+    this.socket.socketEmit('leave-game', {
       userName: this.user.name,
       gameId: this.currGameId,
       currPlayerIndex: this.currPlayerIndex
@@ -367,7 +335,7 @@ export class DurakGameService {
 
   joinGame(gameId): void {
 
-    this.socket.emit('join-game', {
+    this.socket.socketEmit('join-game', {
       userName: this.user.name,
       gameId: gameId
     });
@@ -375,7 +343,7 @@ export class DurakGameService {
 
   startGame(): void {
     /* */
-    this.socket.emit('start-game', {
+    this.socket.socketEmit('start-game', {
       userName: this.user.name,
       gameId: this.currGameId
     });
@@ -383,7 +351,7 @@ export class DurakGameService {
 
   makeMove(cardIndex: number): void {
     /* */
-    this.socket.emit('make-move', {
+    this.socket.socketEmit('make-move', {
       gameId: this.currGameId,
       cardIndex: cardIndex
     });
@@ -391,14 +359,14 @@ export class DurakGameService {
 
   skipMove(): void {
     /* */
-    this.socket.emit('skip-move', {
+    this.socket.socketEmit('skip-move', {
       gameId: this.currGameId
     });
   }
 
   takeCards(): void {
     /* */
-    this.socket.emit('take-cards', {
+    this.socket.socketEmit('take-cards', {
       gameId: this.currGameId
     });
   }
@@ -409,7 +377,7 @@ export class DurakGameService {
 
     this.resetAllParams();
 
-    this.socket.emit('back-to-games', {
+    this.socket.socketEmit('back-to-games', {
       userName: this.user.name,
       gameId: gameId
     });
@@ -470,7 +438,7 @@ export class DurakGameService {
 
     let gameId: number = this.getGameIdStorage();
 
-    this.socket.emit('complete-action', {
+    this.socket.socketEmit('complete-action', {
       type: type,
       index: this.currPlayerIndex,
       gameId: gameId
@@ -491,14 +459,14 @@ export class DurakGameService {
 
   timeOver(): void {
 
-    this.socket.emit('time-over', {
+    this.socket.socketEmit('time-over', {
       gameId: this.currGameId
     });
   }
 
   setTimer(endPoint: number, duration: number): void {
 
-    this.socket.emit('set-timer', {
+    this.socket.socketEmit('set-timer', {
       gameId: this.currGameId,
       playerIndex: this.currPlayerIndex,
       endPoint: endPoint,
@@ -507,7 +475,7 @@ export class DurakGameService {
   }
 
   cancelTimer(): void {
-    this.socket.emit('cancel-timer', {
+    this.socket.socketEmit('cancel-timer', {
       gameId: this.currGameId
     });
   }

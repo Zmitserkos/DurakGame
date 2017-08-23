@@ -1,0 +1,49 @@
+@import "common.scss";
+
+$card-height: 123px;
+$card-width: 79px;
+
+.card {
+  background: url(durak-game/assets/images/cards.png) no-repeat;
+  border-radius: 8px;
+  height: $card-height;
+  overflow: hidden;
+  width: $card-width;
+}
+
+.deactivated {
+  background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(durak-game/assets/images/cards.png) no-repeat;
+}
+
+.rotated{
+  transform: rotate(90deg);
+}
+
+.curr-player-card {
+  transition: transform 0.3s;
+}
+
+.curr-player-card:hover {
+  transform: translateY(-20px);
+}
+
+/*club*/
+.suit1 { background-position-y: -123px; } /*diamond*/
+.suit2 { background-position-y: -246px; } /*heart*/
+.suit3 { background-position-y: -369px; } /*spade*/
+.suit4 { background-position-y: -492px; } /*back*/
+
+.value1 { background-position-x: -79px; }
+.value2 { background-position-x: -158px; }
+.value3 { background-position-x: -237px; }
+.value4 { background-position-x: -316px; }
+.value5 { background-position-x: -395px; }
+.value6 { background-position-x: -474px; }
+.value7 { background-position-x: -553px; }
+.value8 { background-position-x: -632px; }
+.value9 { background-position-x: -711px; }
+.value10 { background-position-x: -790px; }
+.value11 { background-position-x: -869px; }
+.value12 { background-position-x: -948px; }
+
+.back { background-position: -158px -492px; }

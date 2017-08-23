@@ -51,11 +51,11 @@ var AuthGuard = (function () {
             return true;
         }
     };
+    AuthGuard = __decorate([
+        core_1.Injectable(),
+        __metadata("design:paramtypes", [router_1.Router, durak_game_service_1.DurakGameService])
+    ], AuthGuard);
     return AuthGuard;
 }());
-AuthGuard = __decorate([
-    core_1.Injectable(),
-    __metadata("design:paramtypes", [router_1.Router, durak_game_service_1.DurakGameService])
-], AuthGuard);
 exports.AuthGuard = AuthGuard;
 //# sourceMappingURL=auth-guard-service.js.map

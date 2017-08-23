@@ -2,32 +2,19 @@ import {
   Component,
   Input,
   OnInit,
-  ElementRef,
-  Inject,
-  Injectable
+  ElementRef
 } from "@angular/core";
+
+import { DurakGameService } from "../services/durak-game-service";
+import { DisplayService } from "../services/display-service";
+import { TimerService } from "../services/timer-service";
 
 import { Card } from '../classes/card';
 
-import {
-  DurakGameService
-} from "../services/durak-game-service";
-
-import {
-  DisplayService
-} from "../services/display-service";
-
-import {
-  TimerService
-} from "../services/timer-service";
-
 @Component({
   selector: "card-cmp",
-  template: `<div class="card suit{{card.suit}} value{{card.value}}"
-      (click)="makeMove()"
-      [ngClass]="{'rotated': rotated, 'deactivated': isDeactivated(), 'curr-player-card': card.isActive}"
-      [ngStyle]="{'margin': getMargin()}">
-    </div>`
+  templateUrl: "durak-game/templates/card.html",
+  styleUrls: ["durak-game/styles/css/card.css"]
 })
 export class CardCmp implements OnInit {
 
@@ -50,7 +37,7 @@ export class CardCmp implements OnInit {
     public display: DisplayService,
     private _timer: TimerService
   ) {
-    
+
   }
 
   ngOnInit() {

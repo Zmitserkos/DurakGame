@@ -8,17 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var platform_browser_1 = require("@angular/platform-browser");
 var durak_game_service_1 = require("../services/durak-game-service");
 var TimerService = (function () {
-    function TimerService(durakGame, document) {
+    function TimerService(durakGame) {
         this.durakGame = durakGame;
-        this.document = document;
         this.duration = 20;
         this.time = new Date(this.duration * 1000);
         this.options = {
@@ -92,12 +87,11 @@ var TimerService = (function () {
             this.run();
         }
     };
+    TimerService = __decorate([
+        core_1.Injectable(),
+        __metadata("design:paramtypes", [durak_game_service_1.DurakGameService])
+    ], TimerService);
     return TimerService;
 }());
-TimerService = __decorate([
-    core_1.Injectable(),
-    __param(1, core_1.Inject(platform_browser_1.DOCUMENT)),
-    __metadata("design:paramtypes", [durak_game_service_1.DurakGameService, Object])
-], TimerService);
 exports.TimerService = TimerService;
 //# sourceMappingURL=timer-service.js.map

@@ -1,0 +1,71 @@
+@import "common.scss";
+
+.table-btn {
+  background: #840;
+  border: 0;
+  border-radius: 4px;
+  color: #ded;
+  float: right;
+  font-size: 14px;
+  height: 30px;
+  margin: 10px 10px 10px 0;
+  width: 120px;
+}
+
+.games-list {
+  background: $color-background-grid;
+  font-family: arial;
+  list-style-type: none;
+  width: 1100px;
+}
+
+.game-line {
+  height: 30px;
+  padding: 10px;
+}
+
+.odd {
+  background-color: $color-odd-grid-row;
+}
+
+.game-name {
+  padding-left: 20px;
+}
+
+.game-status {
+  text-align: right;
+  width: 160px;
+}
+
+.game-btn-cell {
+  width: 80px;
+}
+
+.game-btn {
+  background: $color-join-btn;
+  border: 0;
+  border-radius: 4px;
+  color: white;
+  height: 24px;
+  width: 100%;
+}
+
+.active-game {
+  color: red;
+}
+
+.finished-game {
+  color: grey;
+}
+
+.create-btn {
+  background: $color-create-btn;
+  border: 0;
+  border-radius: 4px;
+  color: white;
+  float: right;
+  font-size: 14px;
+  height: 2em;
+  margin: (2em/3) (1em/3);
+  width: 9em;
+}

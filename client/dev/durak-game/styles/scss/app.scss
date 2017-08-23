@@ -1,0 +1,38 @@
+@import "common.scss";
+
+body {
+  background: $color-background;
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+
+$header-height: 80px;
+
+header {
+  background: $color-background-header;
+  color: $color-header-title;
+  height: $header-height;
+}
+
+.head-title {
+  line-height: $header-height;
+  padding: 0 ($header-height/2);
+}
+
+.head-title-name {
+  font-family: 'Ruslan Display', cursive;
+  font-size: 42px;
+  position: relative;
+  top: 4px;
+}
+
+.head-title-suit {
+  font-size: 22px;
+}
+
+.main-container {
+  @include flexbox(row, $justify-content: center, $align-items: stretch);
+  height: 850px;
+  position: relative;
+}

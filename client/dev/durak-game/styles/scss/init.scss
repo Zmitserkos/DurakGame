@@ -1,0 +1,37 @@
+@import "common.scss";
+
+.init-form {
+  @include flexbox(column, $justify-content: flex-start, $align-items: center);
+}
+
+.init-message {
+  color: $color-home-message;
+  position: absolute;
+  top: 220px;
+  width: 300px;
+}
+
+.name-input {
+  border-radius: 6px;
+  display: block;
+  font-size: 18px;
+  height: 40px;
+  position: absolute;
+  top: 240px;
+  padding-left: 10px;
+  width: 300px;
+}
+
+$play-btn-radius: 2em;
+
+.play-btn {
+  background: $color-orange;
+  border: 0;
+  border-radius: $play-btn-radius;
+  color: white;
+  font-size: 26px;
+  height: 2*$play-btn-radius;
+  position: absolute;
+  top: 310px;
+  width: 2*$play-btn-radius;
+}

@@ -8,26 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var Observable_1 = require("rxjs/Observable");
-var http_1 = require("@angular/http");
+var router_1 = require("@angular/router");
+var socket_service_1 = require("../services/socket-service");
 var card_1 = require("../classes/card");
 var user_1 = require("../classes/user");
 var player_1 = require("../classes/player");
 var card_transition_1 = require("../classes/card-transition");
-var router_1 = require("@angular/router");
-require("rxjs/add/operator/map");
-var io = require("socket.io-client/socket.io");
 var DurakGameService = (function () {
-    function DurakGameService(_http, router) {
-        this._http = _http;
+    function DurakGameService(router, socket) {
         this.router = router;
-        this.url = 'http://localhost:3333';
-        this.socket = io(this.url);
+        this.socket = socket;
         // array of cards of the current round
         this.inRoundCards = [];
         // array of cards that was beaten during previous rounds
@@ -64,36 +56,22 @@ var DurakGameService = (function () {
         this.isActionComleted = value;
         this.setButtonRights();
     };
-    DurakGameService.prototype.getMessages = function () {
-        var _this = this;
-        var observable = new Observable_1.Observable(function (observer) {
-            _this.socket = io(_this.url);
-            _this.socket.on('message', function (data) {
-                observer.next(data);
-            });
-            return function () {
-                _this.socket.disconnect();
-            };
-        });
-        //
-        return observable;
-    };
     DurakGameService.prototype.addUser = function (name) {
         this.tempUserName = name;
-        this.socket.emit('add-user', name);
+        this.socket.socketEmit('add-user', name);
     };
     DurakGameService.prototype.loadGames = function () {
         /* Load data for '/games' route */
         var userName = this.getUserNameStorage();
         this.tempUserName = userName;
-        this.socket.emit('get-games', { userName: userName });
+        this.socket.socketEmit('get-games', { userName: userName });
     };
     DurakGameService.prototype.loadTable = function () {
         /* Load data for '/table' route */
         var userName = this.getUserNameStorage();
         var gameId = this.getGameIdStorage();
         this.tempUserName = userName;
-        this.socket.emit('get-table', { userName: userName, gameId: gameId });
+        this.socket.socketEmit('get-table', { userName: userName, gameId: gameId });
     };
     DurakGameService.prototype.getUserNameStorage = function () {
         /*  */
@@ -120,7 +98,7 @@ var DurakGameService = (function () {
         sessionStorage.removeItem('gameId');
     };
     DurakGameService.prototype.createGame = function () {
-        this.socket.emit('create-game', this.user.name);
+        this.socket.socketEmit('create-game', this.user.name);
     };
     DurakGameService.prototype.setIndexes = function () {
         //
@@ -220,7 +198,7 @@ var DurakGameService = (function () {
         this.buttonRights['backToMenu'] = (this.looserIndex != null);
     };
     DurakGameService.prototype.leaveGame = function () {
-        this.socket.emit('leave-game', {
+        this.socket.socketEmit('leave-game', {
             userName: this.user.name,
             gameId: this.currGameId,
             currPlayerIndex: this.currPlayerIndex
@@ -238,34 +216,34 @@ var DurakGameService = (function () {
         return i;
     };
     DurakGameService.prototype.joinGame = function (gameId) {
-        this.socket.emit('join-game', {
+        this.socket.socketEmit('join-game', {
             userName: this.user.name,
             gameId: gameId
         });
     };
     DurakGameService.prototype.startGame = function () {
         /* */
-        this.socket.emit('start-game', {
+        this.socket.socketEmit('start-game', {
             userName: this.user.name,
             gameId: this.currGameId
         });
     };
     DurakGameService.prototype.makeMove = function (cardIndex) {
         /* */
-        this.socket.emit('make-move', {
+        this.socket.socketEmit('make-move', {
             gameId: this.currGameId,
             cardIndex: cardIndex
         });
     };
     DurakGameService.prototype.skipMove = function () {
         /* */
-        this.socket.emit('skip-move', {
+        this.socket.socketEmit('skip-move', {
             gameId: this.currGameId
         });
     };
     DurakGameService.prototype.takeCards = function () {
         /* */
-        this.socket.emit('take-cards', {
+        this.socket.socketEmit('take-cards', {
             gameId: this.currGameId
         });
     };
@@ -273,7 +251,7 @@ var DurakGameService = (function () {
         /* */
         var gameId = this.currGameId;
         this.resetAllParams();
-        this.socket.emit('back-to-games', {
+        this.socket.socketEmit('back-to-games', {
             userName: this.user.name,
             gameId: gameId
         });
@@ -326,7 +304,7 @@ var DurakGameService = (function () {
     DurakGameService.prototype.completeAction = function (type) {
         this.setButtonRights();
         var gameId = this.getGameIdStorage();
-        this.socket.emit('complete-action', {
+        this.socket.socketEmit('complete-action', {
             type: type,
             index: this.currPlayerIndex,
             gameId: gameId
@@ -342,12 +320,12 @@ var DurakGameService = (function () {
         return this.players[this.currPlayerIndex].isActive && !this.isTimeOver;
     };
     DurakGameService.prototype.timeOver = function () {
-        this.socket.emit('time-over', {
+        this.socket.socketEmit('time-over', {
             gameId: this.currGameId
         });
     };
     DurakGameService.prototype.setTimer = function (endPoint, duration) {
-        this.socket.emit('set-timer', {
+        this.socket.socketEmit('set-timer', {
             gameId: this.currGameId,
             playerIndex: this.currPlayerIndex,
             endPoint: endPoint,
@@ -355,17 +333,16 @@ var DurakGameService = (function () {
         });
     };
     DurakGameService.prototype.cancelTimer = function () {
-        this.socket.emit('cancel-timer', {
+        this.socket.socketEmit('cancel-timer', {
             gameId: this.currGameId
         });
     };
+    DurakGameService = __decorate([
+        core_1.Injectable(),
+        __metadata("design:paramtypes", [router_1.Router,
+            socket_service_1.SocketService])
+    ], DurakGameService);
     return DurakGameService;
 }());
-DurakGameService = __decorate([
-    core_1.Injectable(),
-    __param(0, core_1.Inject(http_1.Http)),
-    __metadata("design:paramtypes", [http_1.Http,
-        router_1.Router])
-], DurakGameService);
 exports.DurakGameService = DurakGameService;
 //# sourceMappingURL=durak-game-service.js.map

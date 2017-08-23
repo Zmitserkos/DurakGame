@@ -7,10 +7,7 @@ import { DOCUMENT } from '@angular/platform-browser';
 
 import { Card } from '../classes/card';
 import { CardCmp } from "../components/card-cmp";
-
-import {
-  CardTransition
-} from '../classes/card-transition';
+import { CardTransition } from '../classes/card-transition';
 
 @Injectable()
 export class DisplayService {

@@ -10,10 +10,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var card_1 = require("../classes/card");
 var durak_game_service_1 = require("../services/durak-game-service");
 var display_service_1 = require("../services/display-service");
 var timer_service_1 = require("../services/timer-service");
+var card_1 = require("../classes/card");
 var CardCmp = (function () {
     function CardCmp(elementRef, game, display, _timer) {
         this.elementRef = elementRef;
@@ -114,41 +114,42 @@ var CardCmp = (function () {
         this._timer.actionCommited = true;
         this.game.makeMove(this.cardIndex);
     };
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", card_1.Card)
+    ], CardCmp.prototype, "card", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Number)
+    ], CardCmp.prototype, "cardIndex", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Boolean)
+    ], CardCmp.prototype, "isVisible", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Boolean)
+    ], CardCmp.prototype, "rotated", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Number)
+    ], CardCmp.prototype, "margin", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", String)
+    ], CardCmp.prototype, "sign", void 0);
+    CardCmp = __decorate([
+        core_1.Component({
+            selector: "card-cmp",
+            templateUrl: "durak-game/templates/card.html",
+            styleUrls: ["durak-game/styles/css/card.css"]
+        }),
+        __metadata("design:paramtypes", [core_1.ElementRef,
+            durak_game_service_1.DurakGameService,
+            display_service_1.DisplayService,
+            timer_service_1.TimerService])
+    ], CardCmp);
     return CardCmp;
 }());
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", card_1.Card)
-], CardCmp.prototype, "card", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Number)
-], CardCmp.prototype, "cardIndex", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Boolean)
-], CardCmp.prototype, "isVisible", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Boolean)
-], CardCmp.prototype, "rotated", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Number)
-], CardCmp.prototype, "margin", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", String)
-], CardCmp.prototype, "sign", void 0);
-CardCmp = __decorate([
-    core_1.Component({
-        selector: "card-cmp",
-        template: "<div class=\"card suit{{card.suit}} value{{card.value}}\"\n      (click)=\"makeMove()\"\n      [ngClass]=\"{'rotated': rotated, 'deactivated': isDeactivated(), 'curr-player-card': card.isActive}\"\n      [ngStyle]=\"{'margin': getMargin()}\">\n    </div>"
-    }),
-    __metadata("design:paramtypes", [core_1.ElementRef,
-        durak_game_service_1.DurakGameService,
-        display_service_1.DisplayService,
-        timer_service_1.TimerService])
-], CardCmp);
 exports.CardCmp = CardCmp;
 //# sourceMappingURL=card-cmp.js.map

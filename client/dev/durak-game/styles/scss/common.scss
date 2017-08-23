@@ -1,0 +1,32 @@
+@import url(//fonts.googleapis.com/css?family=Ruslan+Display);
+
+/*colors*/
+
+$color-background: #0a0;
+$color-background-header: #470;
+$color-header-title: #ded;
+
+$color-home-message: #d21;
+$color-orange: #c80; /*orange $color-play-btn; */
+
+$color-background-grid: #efe;
+$color-odd-grid-row: $color-background-grid - #0c070d ; /*#e2f7e1*/
+$color-create-btn: #950;
+$color-join-btn: #c90;
+
+
+/*text styles*/
+
+
+
+/*flexbox*/
+
+@mixin flexbox($direction, $justify-content, $align-items) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify-content;
+  align-items: $align-items;
+}
+
+/*other*/
+$general-z-index: 900;

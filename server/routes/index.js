@@ -9,7 +9,6 @@ module.exports = class Routes {
        .route("*")
        .get(StaticDispatcher.sendIndex);
 
-
      app.use("/", router);
    }
 }

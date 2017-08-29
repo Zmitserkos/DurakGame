@@ -1,8 +1,5 @@
 "use strict";
 
-if (process.env.NODE_ENV === "production")
-    require("newrelic");
-
 const PORT = process.env.PORT || 3333;
 
 const os = require("os");
@@ -23,7 +20,7 @@ var server = http.createServer(app);
 
 var io = require('socket.io')(server);
 
-/////////////////////////////////// //////////////////////
+/////////////////////////////////////////////////////////
 require('./socket')(io);
 
 server.listen(PORT, () => {

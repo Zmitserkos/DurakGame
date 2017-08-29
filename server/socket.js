@@ -302,7 +302,7 @@ function appSocket(io) {
 
           currGame.endGame(io.sockets, data.gameId);
         }
-      }, 2 * data.timerDuration * 1000);
+      }, data.timerDuration * 1000 + 3000);
     });
 
     socket.on('cancel-timer', (data) => {

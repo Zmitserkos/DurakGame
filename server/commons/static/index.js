@@ -11,6 +11,6 @@ module.exports = class StaticDispatcher {
 
       res.type(".html");
 
-      fs.createReadStream(path.join(`${_root}/client/${_folder}/index.html`)).pipe(res);
+      fs.createReadStream(path.join(`${_root}/public/${_folder}/client/index.html`)).pipe(res);
     }
 }

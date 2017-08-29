@@ -144,10 +144,20 @@ class Game {
         card => card.isActive
       );
 
-      sockets.connected[inGamePlayer.socketId].emit('message', {type:'start-round', data: {
-        activePlayerIndex: activePlayerIndex,
-        activeCards: activeCards
-      }});
+      let currSocket = sockets.connected[inGamePlayer.socketId];
+
+      if (currSocket) {
+        currSocket.emit('message', {
+          type:'start-round',
+          data: {
+            activePlayerIndex: activePlayerIndex,
+            activeCards: activeCards
+          }
+        });
+      } else {
+        /// error ???
+        console.log('Socket error! Event: start-round');
+      }
     });
   }
 
@@ -251,10 +261,19 @@ class Game {
           }
         );
 
-        sockets.connected[player.socketId].emit('message', {type: 'give-cards', data: {
-            cardsToGiveData: cardsToGiveData
-          }
-        });
+        let currSocket = sockets.connected[player.socketId];
+
+        if (currSocket) {
+          currSocket.emit('message', {
+            type: 'give-cards',
+            data: {
+              cardsToGiveData: cardsToGiveData
+            }
+          });
+        } else {
+          /// error ???
+          console.log('Socket error! Event: give-cards');
+        }
       }
     );
   }

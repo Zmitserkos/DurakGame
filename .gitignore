@@ -1,7 +1,8 @@
 .idea
 coverage
 unit_coverage
-client/dev/bower_components
 typings
 node_modules
 npm-debug.log
+public
+stats.json

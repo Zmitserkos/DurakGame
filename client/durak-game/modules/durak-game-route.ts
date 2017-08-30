@@ -35,6 +35,9 @@ const durakGameRoutes:Routes = [
 		component: TableCmp,
 		pathMatch: "full",
 		canActivate: [AuthGuard]
+	}, {
+		path: "**",
+		redirectTo: '/'
 	}
 ];
 
